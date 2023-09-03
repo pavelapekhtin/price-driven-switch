@@ -1,0 +1,27 @@
+FROM python:3.11
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Install Supervisord
+RUN apt-get update && apt-get install -y supervisor
+
+# Copy pyproject.toml and poetry.lock files
+COPY ../pyproject.toml ../poetry.lock* /app/
+
+# Copy the backend code into the container
+COPY ./price_driven_switch/ /app/price_driven_switch
+COPY ./README.md /app/README.md
+COPY ./price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Install poetry and only 'backend' group dependencies
+RUN pip install --no-cache-dir poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --without dev
+
+# Make port 8080 available to the world outside this container
+EXPOSE 8080 8501
+
+# Run the application
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

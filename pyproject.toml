@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "price-driven-switch"
+version = "0.1.0"
+description = "Provide on/off states via GET request based on power price from Tibber API"
+authors = ["pavelapekhtin <pavel.apekhtin@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "price_driven_switch", from = "." }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+asyncio = "^3.4.3"
+python-graphql-client = "^0.4.3"
+fastapi = "^0.103.0"
+uvicorn = "^0.23.2"
+python-dotenv = "^1.0.0"
+watchdog = "^3.0.0"
+toml = "^0.10.2"
+
+[tool.poetry.group.frontend.dependencies]
+plotly = "^5.14.1"
+pandas = "^2.1.0"
+streamlit = "^1.22.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.1"
+pylint = "^2.17.3"
+pytest-cov = "^4.0.0"
+freezegun = "^1.2.2"
+commitizen = "^3.7.0"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "poetry"
+update_changelog_on_bump = true
+major_version_zero = true
