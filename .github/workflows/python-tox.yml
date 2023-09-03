@@ -1,0 +1,29 @@
+name: Python Tox CI
+
+on:
+  push:
+    branches:
+      - main  # Replace with your default branch if not 'main'
+      - develop  # Additional branches can be added here
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]  # Python versions you want to test against
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Tox and Poetry
+      run: |
+        pip install tox
+        pip install poetry
+    - name: Install Dependencies
+      run: poetry install
+    - name: Run Tox
+      run: tox
