@@ -3,8 +3,8 @@ name: Python Tox CI
 on:
   push:
     branches:
-      - main  # Replace with your default branch if not 'main'
-      - develop  # Additional branches can be added here
+      - main  
+      - 'tests/*'  
 
 jobs:
   build:
