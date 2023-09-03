@@ -31,6 +31,7 @@ commitizen = "^3.7.0"
 mypy = "^1.5.1"
 types-toml = "^0.10.8.7"
 pandas-stubs = "^2.0.3.230814"
+black = "^23.7.0"
 
 [tool.mypy]
 exclude = "^tests/.*"
