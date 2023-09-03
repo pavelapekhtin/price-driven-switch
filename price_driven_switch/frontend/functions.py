@@ -1,8 +1,9 @@
 import os
 
 import pandas as pd
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore
 import streamlit as st
+
 from price_driven_switch.backend.configuration import load_setpoints, save_api_key
 from price_driven_switch.backend.tibber import TibberConnection
 

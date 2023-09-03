@@ -2,7 +2,7 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
-from python_graphql_client import GraphqlClient
+from python_graphql_client import GraphqlClient  # type: ignore
 
 TIBBER_API_ENDPOINT = "https://api.tibber.com/v1-beta/gql"
 
