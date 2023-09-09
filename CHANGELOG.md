@@ -1,3 +1,10 @@
+## 0.3.2 (2023-09-09)
+
+### Fix
+
+- **nginx.conf,-docker-compose.yml**: fixing the config presist
+- **docker-compose.yml**: fixed the user data presistance
+
 ## 0.3.1 (2023-09-09)
 
 ### Fix
