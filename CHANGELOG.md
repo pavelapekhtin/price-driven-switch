@@ -1,3 +1,9 @@
+## 0.3.4 (2023-09-09)
+
+### Fix
+
+- **nginx**: reverting to custom nginx
+
 ## 0.3.3 (2023-09-09)
 
 ### Fix
