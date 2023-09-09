@@ -14,8 +14,12 @@ This package is meant to be run in docker. However you can run it locally if you
 
 ### Docker
 
-Clone the repository and run:
-```docker-compose up -d```
+* Install docker and docker-compose on your machine. Get it here: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+
+* In a folder of your choice create a docker-compose.yml file and paste the content of [docker-compose.yml](https://github.com/pavelapekhtin/price-driven-switch/blob/main/docker-compose.yml)
+. You can change the TZ variable to your timezone. The default is Europe/Oslo.
+
+* Run ```docker-compose up -d``` to start the container.
 
 ### Local
 
