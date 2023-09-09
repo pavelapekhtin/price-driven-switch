@@ -46,5 +46,5 @@ def save_setpoints(new_setpoints: dict[str, float], path: str = PATH_SETPOINTS) 
 
 
 def save_api_key(api_key: str) -> None:
-    set_key(".env", "TIBBER_TOKEN", api_key)
+    set_key("price_driven_switch/config/.env", "TIBBER_TOKEN", api_key)
     os.environ["TIBBER_TOKEN"] = api_key

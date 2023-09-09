@@ -14,6 +14,7 @@ COPY ../pyproject.toml ../poetry.lock* /app/
 COPY ./price_driven_switch/ /app/price_driven_switch
 COPY ./README.md /app/README.md
 COPY ./price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ../nginx/ngnix.conf /app/nginx/nginx.conf
 
 # Install poetry and only 'backend' group dependencies
 RUN pip install --no-cache-dir poetry \
