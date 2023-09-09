@@ -1,3 +1,9 @@
+## 0.3.3 (2023-09-09)
+
+### Fix
+
+- **docker-compose.yml**: paths fixes
+
 ## 0.3.2 (2023-09-09)
 
 ### Fix
