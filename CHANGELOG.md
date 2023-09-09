@@ -1,3 +1,9 @@
+## 0.4.2 (2023-09-10)
+
+### Fix
+
+- **gh-actions**: muliplatform build take 2
+
 ## 0.4.1 (2023-09-10)
 
 ### Fix
