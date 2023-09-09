@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+
 from price_driven_switch.backend.configuration import save_setpoints
 from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.prices import Prices
@@ -46,8 +47,8 @@ def main():
     # Use the keys and values (offsets) in loaded_dict to populate offset_prices_today and offset_prices_tomorrow
     for key, offset in slider_values.items():
         # Get the price at this offset for today and tomorrow
-        price_today = round(prices.get_price_at_offset_today(offset) * 100)
-        price_tomorrow = round(prices.get_price_at_offset_tomorrow(offset) * 100)
+        price_today = prices.get_price_at_offset_today(offset) * 100
+        price_tomorrow = prices.get_price_at_offset_tomorrow(offset) * 100
 
         # Add these prices to the respective dictionaries
         offset_prices_today[key] = price_today
