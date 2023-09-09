@@ -7,13 +7,6 @@ import pytest
 import pytz
 
 from price_driven_switch.backend.prices import Prices
-from tests.fixtures.price_fixtures import (
-    FIXTURE_API_RESPONSE,
-    FIXTURE_TODAY_PRICES,
-    JSON_STRING_FIXTURE,
-)
-
-# FIXTURE_JSON_OUTPUT = '{"Boilers": 1, "Floor": 1, "Other": 0}'  # FIXME: not in use
 
 FIXTURE_PRICE_RATIO = 0.4
 FIXTURE_SETPOINTS = {"Boilers": 0.5, "Floor": 0.4, "Other": 0.3}
@@ -45,7 +38,7 @@ def extract_data_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
         .get("priceInfo", {})
         .get("today", [])
     ]
-    return api_response, today_prices
+    return api_response, today_prices  # type: ignore
 
 
 @pytest.fixture
@@ -102,14 +95,14 @@ def tibber_test_token():
 def api_response_fixture() -> Dict[str, Any]:
     json_data = load_json_fixture(PATH_TEST_PRICES)
     api_response, _ = extract_data_from_json(json_data)
-    return api_response
+    return api_response  # type: ignore
 
 
 @pytest.fixture
 def today_prices_fixture() -> List[float]:
     json_data = load_json_fixture(PATH_TEST_PRICES)
     _, today_prices = extract_data_from_json(json_data)
-    return today_prices
+    return today_prices  # type: ignore
 
 
 @pytest.fixture
