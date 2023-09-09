@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 import pandas as pd
 import plotly.graph_objects as go  # type: ignore
@@ -12,12 +13,14 @@ def load_setpoints_cached():
     return load_setpoints()
 
 
-def generate_sliders(vlaues: dict[str, float]) -> dict[str, float]:
-    new_dict = vlaues.copy()
+def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
+    new_dict: Dict[str, float] = values.copy()
     for key, value in new_dict.items():
-        slider_value = int(value * 100)
-        new_value = st.slider(label=key, min_value=0, max_value=100, value=slider_value)
-        new_dict[key] = new_value / 100.0
+        slider_value: int = int(value * 24)
+        new_value: int = st.slider(
+            label=key, min_value=0, max_value=24, value=slider_value
+        )
+        new_dict[key] = new_value / 24.0
     return new_dict
 
 
