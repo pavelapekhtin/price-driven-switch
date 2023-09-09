@@ -2,13 +2,14 @@ import json
 from unittest.mock import mock_open, patch
 
 from freezegun import freeze_time
+
 from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.tibber import TibberConnection
 
 
 class TestPriceFile:
     @freeze_time("2023-05-06 18:25")
-    def test_load_price_file(self, json_string_fixture):
+    def test_load_price_file(self, json_string_fixture, file_date_fixture):
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
 
@@ -20,7 +21,7 @@ class TestPriceFile:
         mock_file.assert_called_once_with(price_file.path, mode="r", encoding="utf-8")
 
         # assert file timestamp
-        assert file_date == "2023-05-06 18:25"
+        assert file_date == file_date_fixture
 
         # assert api_dict
         loaded_api_response = json.loads(json_string_fixture).get("api_response")

@@ -9,9 +9,11 @@ class TestPrices:
         assert isinstance(instance.offset_now, float)
         assert instance.offset_now == 0
 
-    def test_price_now(self, mock_instance_hour_now, prices_instance_fixture) -> None:
+    def test_price_now(
+        self, mock_instance_hour_now, prices_instance_fixture, price_now_fixture
+    ) -> None:
         instance_fixture = prices_instance_fixture
-        assert instance_fixture.price_now == 1.6412
+        assert instance_fixture.price_now == price_now_fixture
 
     def test_hour_now(self, api_response_fixture) -> None:
         prices = Prices(api_response_fixture)
