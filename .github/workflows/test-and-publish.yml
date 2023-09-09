@@ -48,5 +48,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: pavelapekhtin/price-driven-switch:${{ env.VERSION }}
+        tags: |
+          pavelapekhtin/price-driven-switch:${{ env.VERSION }}
+          pavelapekhtin/price-driven-switch:latest
         file: ./price_driven_switch/Dockerfile
