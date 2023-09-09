@@ -6,7 +6,7 @@ services:
     container_name: setpoint-app
     restart: always
     volumes:
-      - setpoint-env:/.env
+      - setpoint-env:/app/.env
       - setpoint-config:/app/price_driven_switch/config
     environment:
       - PYTHONUNBUFFERED=1
@@ -22,7 +22,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - config-volume:/etc/nginx/conf.d
+      - setpoint-config:/etc/nginx/conf.d
     depends_on:
       - setpointer
 
