@@ -1,3 +1,9 @@
+## 0.3.1 (2023-09-09)
+
+### Fix
+
+- **test_and_publish.yml**: fix double run of action
+
 ## 0.3.0 (2023-09-09)
 
 ### Feat
