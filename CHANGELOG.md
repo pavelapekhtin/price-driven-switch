@@ -1,3 +1,9 @@
+## 0.4.1 (2023-09-10)
+
+### Fix
+
+- **test-and-publish**: removed muliplatform build
+
 ## 0.4.0 (2023-09-10)
 
 ### Feat
