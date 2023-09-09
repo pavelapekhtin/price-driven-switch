@@ -2,9 +2,7 @@ version: "3.8"
 
 services:
   setpointer:
-    build:
-      context: ./
-      dockerfile: ./price_driven_switch/dockerfile
+    image: pavelapekhtin/price-driven-switch:latest
     container_name: setpoint-app
     restart: always
     volumes:
@@ -17,7 +15,7 @@ services:
       - "8501:8501"
 
   nginx:
-    build: ./nginx
+    image: pavelapekhtin/nginx-for-price-driven-switch:0.3.4
     container_name: nginx
     restart: always
     ports:

@@ -1,7 +1,14 @@
+## 0.3.5 (2023-09-09)
+
+### Fix
+
+- **nginx**: path fix for config file
+
 ## 0.3.4 (2023-09-09)
 
 ### Fix
 
+- **nginx**: path fix for config file
 - **nginx**: reverting to custom nginx
 
 ## 0.3.3 (2023-09-09)
