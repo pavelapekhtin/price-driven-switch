@@ -1,14 +1,13 @@
 version: "3.8"
 
 services:
-
   setpointer:
     image: pavelapekhtin/price-driven-switch:latest
     container_name: setpoint-app
     restart: always
     volumes:
-      - .env:/.env
-      - ./price_driven_switch/config/setpoints.toml:/app/price_driven_switch/config/setpoints.toml
+      - env_data:/.env
+      - setpoints_data:/app/price_driven_switch/config/setpoints.toml
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Oslo
@@ -26,3 +25,7 @@ services:
       - ./nginx/ngnix.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - setpointer
+
+volumes:
+  env_data:
+  setpoints_data:
