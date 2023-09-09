@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 from typing import Any, Dict, List, Tuple, Union
 from unittest.mock import patch
 
@@ -129,18 +130,12 @@ def price_now_fixture() -> Union[None, float]:
         ]["priceInfo"]["today"]
 
         # Get the current time in UTC
-        current_time_utc = datetime.datetime.now(datetime.timezone.utc)
-
-        # Convert to Central European Time (CET)
-        cet = pytz.timezone("Europe/Berlin")
-        current_time_cet = current_time_utc.astimezone(cet)
+        current_time_cet = datetime.datetime.now()
+        logging.debug(f"Current time in CET: {current_time_cet}")
 
         # Get the current hour in CET and adjust by 1 to fix the one-hour offset
-        current_hour = current_time_cet.hour + 1
-
-        # Check if the hour goes out of range (e.g., from 23 to 24)
-        if current_hour >= len(prices_today):
-            current_hour = 0  # Loop back to the first hour if needed
+        current_hour = current_time_cet.hour
+        logging.debug(f"Current hour in CET: {current_hour}")
 
         # Retrieve the 'total' value for the present hour
         price_now = prices_today[current_hour]["total"]
@@ -163,9 +158,9 @@ def mock_hour_now():
         yield mock_data
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_instance_hour_now():
-    mock_data = 17
+    mock_data = datetime.datetime.now().hour
     with patch(
         "price_driven_switch.backend.prices.Prices._hour_now",
         return_value=mock_data,
