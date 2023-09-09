@@ -1,3 +1,9 @@
+## 0.4.3 (2023-09-10)
+
+### Fix
+
+- **dockerfiles**: dockerfile paths fixes
+
 ## 0.4.2 (2023-09-10)
 
 ### Fix
