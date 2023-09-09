@@ -1,3 +1,9 @@
+## 0.3.0 (2023-09-09)
+
+### Feat
+
+- **docker-compose.yml**: no need to buld the image locally any more
+
 ## 0.2.0 (2023-09-09)
 
 ### Feat
