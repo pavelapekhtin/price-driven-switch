@@ -19,8 +19,8 @@ services:
       - "8501:8501" # For Streamlit
 
   nginx:
-    build: ./nginx
-    container_name: nginx:latest
+    image: nginx:latest
+    container_name: nginx
     restart: always
     ports:
       - "80:80"
