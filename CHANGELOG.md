@@ -1,3 +1,15 @@
+## 0.4.0 (2023-09-10)
+
+### Feat
+
+- **test-and-publish.yml**: added arm and amd builds
+
+### Fix
+
+- **nginx.conf**: nginx config name bug fixed
+
+## 0.3.4 (2023-09-09)
+
 ## 0.3.5 (2023-09-09)
 
 ### Fix
