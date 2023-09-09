@@ -8,6 +8,9 @@ services:
       dockerfile: ./price_driven_switch/dockerfile
     container_name: setpoint-app
     restart: always
+    volumes:
+      - .env:/.env
+      - ./price_driven_switch/config/setpoints.toml:/app/price_driven_switch/config/setpoints.toml
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Oslo
