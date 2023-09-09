@@ -66,4 +66,4 @@ jobs:
         tags: |
           pavelapekhtin/nginx-for-price-driven-switch:${{ env.VERSION }}
           pavelapekhtin/nginx-for-price-driven-switch:latest
-        file: ./nginx/dockerfile
+        file: ./nginx/Dockerfile
