@@ -6,12 +6,9 @@ from tempfile import NamedTemporaryFile
 import toml
 from dotenv import load_dotenv, set_key
 
-load_dotenv()
+load_dotenv("price_driven_switch/config/", verbose=True)
 
 PATH_SETPOINTS = "price_driven_switch/config/setpoints.toml"
-
-# TODO:  allow setting currency and calculation method (% of range or based on mean)
-# TODO:  allow setting this in the frontend
 
 
 def check_setpoints_toml(
