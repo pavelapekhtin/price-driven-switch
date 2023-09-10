@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 import toml
 from dotenv import load_dotenv, set_key
 
-load_dotenv("price_driven_switch/config/", verbose=True)
+load_dotenv("price_driven_switch/config/.env", verbose=True)
 
 PATH_SETPOINTS = "price_driven_switch/config/setpoints.toml"
 

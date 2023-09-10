@@ -27,7 +27,7 @@ PRICE_NO_TAX_QUERY = """
 
 # TODO: add token loading from file
 
-load_dotenv()
+load_dotenv("price_driven_switch/config/.env", verbose=True)
 TIBBER_TOKEN = str(os.environ.get("TIBBER_TOKEN"))
 
 
