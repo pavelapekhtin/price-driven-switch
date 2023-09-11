@@ -1,3 +1,9 @@
+## 0.4.5 (2023-09-11)
+
+### Fix
+
+- **ci**: changed context for nginx docker publish
+
 ## 0.4.4 (2023-09-10)
 
 ### Fix
