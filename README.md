@@ -21,6 +21,8 @@ This package is meant to be run in docker. However you can run it locally if you
 
 * Run ```docker-compose up -d``` to start the container.
 
+Tested to work on arm64 and amd64 architectures, if you want to run it on a different architecture you will have to build the image yourself, for this clone the repository, navigate to the repository folder in the terminal and run ```docker compose -f docker-compose.dev.yml up -d```. This will build the containers from local files.
+
 ### Local
 
 Navigate to the project folder and run:
