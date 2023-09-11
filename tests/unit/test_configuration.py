@@ -2,10 +2,12 @@ import logging
 
 import pytest
 import toml
+
 from price_driven_switch.backend.configuration import (
     check_setpoints_in_range,
     check_setpoints_toml,
     load_setpoints,
+    load_settings,
 )
 
 
@@ -17,7 +19,7 @@ def test_create_setpoints_file(tmp_path):
     assert file_path.exists()
 
     # Assert the file has the right content
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         data = toml.load(file)
     assert data == {"Appliance1": 1, "Appliance2": 1}
 
@@ -39,6 +41,17 @@ def test_load_setpoints() -> None:
         "Boilers": 0.5,
         "Floor": 0.4,
         "Other": 0.3,
+    }
+
+
+def test_load_settings() -> None:
+    assert load_settings("tests/fixtures/settings_test.toml") == {
+        "Appliances": {
+            "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Floor": {"Group": "B", "Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Timezone": {"TZ": "Europe/Oslo"},
     }
 
 

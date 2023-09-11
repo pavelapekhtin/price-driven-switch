@@ -42,6 +42,15 @@ def save_setpoints(new_setpoints: dict[str, float], path: str = PATH_SETPOINTS) 
     move(tmp.name, path)
 
 
+# settings.toml
+
+
+def load_settings(path: str = "price_driven_switch/config/settings.toml") -> dict:
+    with open(path, mode="r", encoding="utf-8") as toml_file:
+        settings = toml.load(toml_file)
+        return settings
+
+
 def save_api_key(api_key: str) -> None:
     set_key("price_driven_switch/config/.env", "TIBBER_TOKEN", api_key)
     os.environ["TIBBER_TOKEN"] = api_key
