@@ -1,20 +1,20 @@
-[Appliances.Boilers]
+[Appliances."Boiler 1"]
 Setpoint = 0.5
 Power = 1.5
 Priority = 2
-Group = "A"
+Group = "Boilers"
 
-[Appliances.Floor]
+[Appliances."Boiler 2"]
 Setpoint = 0.5
 Power = 1.0
 Priority = 1
-Group = "B"
+Group = "Boilers"
 
-[Appliances.Other]
+[Appliances."Floor"]
 Setpoint = 0.5
 Power = 0.8
 Priority = 3
-Group = "C"
+Group = ""
 
 [Timezone]
 TZ = "Europe/Oslo"

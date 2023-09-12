@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pytest
 import pytz
 
+from price_driven_switch.backend.configuration import load_settings
 from price_driven_switch.backend.prices import Prices
 
 FIXTURE_PRICE_RATIO = 0.4
@@ -177,3 +178,8 @@ def mock_instance_with_hour(api_response_fixture):
     ):
         instance = Prices(api_response_fixture)
         yield mock_hour_data, instance
+
+
+@pytest.fixture
+def settings_dict_fixture():
+    return load_settings("tests/fixtures/settings_test.toml")
