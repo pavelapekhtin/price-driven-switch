@@ -6,6 +6,7 @@ import toml
 from price_driven_switch.backend.configuration import (
     check_setpoints_in_range,
     check_setpoints_toml,
+    check_settings_toml,
     load_setpoints,
     load_settings,
 )
@@ -44,6 +45,16 @@ def test_load_setpoints() -> None:
     }
 
 
+def test_load_setpoints_out_of_range() -> None:
+    with pytest.raises(ValueError):
+        load_setpoints("tests/fixtures/test_setpoints_out_of_range.toml")
+
+
+def test_check_setpoint_in_range() -> None:
+    setpoints = {"Boilers": 0.5, "Floor": 0.4, "Other": 0.3}
+    assert check_setpoints_in_range(setpoints) is None
+
+
 def test_load_settings() -> None:
     assert load_settings("tests/fixtures/settings_test.toml") == {
         "Appliances": {
@@ -55,11 +66,33 @@ def test_load_settings() -> None:
     }
 
 
-def test_load_setpoints_out_of_range() -> None:
+def test_check_settings_toml() -> None:
+    test_data_correct = {
+        "Appliances": {
+            "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Floor": {"Group": "B", "Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Timezone": {"TZ": "Europe/Oslo"},
+    }
+    wrong_structure = {
+        "Appliances": {
+            "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Floor": {"Grou": "B", "Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Timezone": {"TZ": "Europe/Oslo"},
+    }
+    out_of_range_setpoint = {
+        "Appliances": {
+            "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Flor": {"Group": "B", "Power": 1.0, "Priority": 1, "Setpoint": 1.5},
+            "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Timezone": {"TZ": "Europe/Oslo"},
+    }
+    assert check_settings_toml(test_data_correct) is None
     with pytest.raises(ValueError):
-        load_setpoints("tests/fixtures/test_setpoints_out_of_range.toml")
-
-
-def test_check_setpoint_in_range() -> None:
-    setpoints = {"Boilers": 0.5, "Floor": 0.4, "Other": 0.3}
-    assert check_setpoints_in_range(setpoints) is None
+        check_settings_toml(wrong_structure)
+    with pytest.raises(ValueError):
+        check_settings_toml(out_of_range_setpoint)
