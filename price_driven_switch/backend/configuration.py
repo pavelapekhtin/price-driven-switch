@@ -6,7 +6,7 @@ from typing import Dict
 
 import toml
 from dotenv import load_dotenv, set_key
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 load_dotenv("price_driven_switch/config/.env", verbose=True)
 
@@ -58,7 +58,7 @@ class TomlStructure(BaseModel):
     Appliances: Dict[str, Appliance]
     Timezone: Dict[str, str]
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     @classmethod
     def check_timezone_key_exists(cls, values):
         timezone = values.get("Timezone")
@@ -67,7 +67,7 @@ class TomlStructure(BaseModel):
         return values
 
 
-def check_settings_toml(data: dict) -> None:
+def validate_settings(data: dict) -> None:
     try:
         TomlStructure(**data)
     except ValueError as error:
@@ -77,14 +77,14 @@ def check_settings_toml(data: dict) -> None:
 def load_settings(path: str = "price_driven_switch/config/settings.toml") -> dict:
     with open(path, mode="r", encoding="utf-8") as toml_file:
         settings = toml.load(toml_file)
-        check_settings_toml(settings)
+        validate_settings(settings)
         return settings
 
 
 def save_settings(
     new_settings: dict, path: str = "price_driven_switch/config/settings.toml"
 ) -> None:
-    check_settings_toml(new_settings)
+    validate_settings(new_settings)
     with NamedTemporaryFile("w", delete=False) as tmp:
         toml.dump(new_settings, tmp)
     move(tmp.name, path)

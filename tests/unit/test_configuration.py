@@ -6,9 +6,9 @@ import toml
 from price_driven_switch.backend.configuration import (
     check_setpoints_in_range,
     check_setpoints_toml,
-    check_settings_toml,
     load_setpoints,
     load_settings,
+    validate_settings,
 )
 
 
@@ -55,6 +55,7 @@ def test_check_setpoint_in_range() -> None:
     assert check_setpoints_in_range(setpoints) is None
 
 
+@pytest.mark.unit
 def test_load_settings() -> None:
     assert load_settings("tests/fixtures/settings_test.toml") == {
         "Appliances": {
@@ -66,6 +67,7 @@ def test_load_settings() -> None:
     }
 
 
+@pytest.mark.unit
 def test_check_settings_toml() -> None:
     test_data_correct = {
         "Appliances": {
@@ -91,8 +93,8 @@ def test_check_settings_toml() -> None:
         },
         "Timezone": {"TZ": "Europe/Oslo"},
     }
-    assert check_settings_toml(test_data_correct) is None
+    assert validate_settings(test_data_correct) is None
     with pytest.raises(ValueError):
-        check_settings_toml(wrong_structure)
+        validate_settings(wrong_structure)
     with pytest.raises(ValueError):
-        check_settings_toml(out_of_range_setpoint)
+        validate_settings(out_of_range_setpoint)
