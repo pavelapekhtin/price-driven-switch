@@ -71,11 +71,15 @@ def validate_settings(data: dict) -> None:
         raise ValueError("Invalid settings.toml file") from error
 
 
-def load_settings(path: str = PATH_SETTINGS) -> dict:
+def load_settings_file(path: str = PATH_SETTINGS) -> dict:
     with open(path, mode="r", encoding="utf-8") as toml_file:
         settings = toml.load(toml_file)
         validate_settings(settings)
         return settings
+
+
+def load_global_settings() -> dict:
+    return load_settings_file().get("Settings", {})
 
 
 def save_settings(

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from price_driven_switch.backend.configuration import load_settings
+from price_driven_switch.backend.configuration import load_settings_file
 from price_driven_switch.backend.switch_logic import load_appliances_df
 
 
