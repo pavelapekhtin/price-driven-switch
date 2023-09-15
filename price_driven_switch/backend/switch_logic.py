@@ -1,5 +1,3 @@
-import logging
-
 import pandas as pd
 
 
@@ -47,7 +45,7 @@ def get_price_based_states(
     appliance_df: pd.DataFrame,
     offset_now: float,
 ) -> pd.DataFrame:
-    appliance_df["can_be_on"] = appliance_df["Setpoint"] <= offset_now
+    appliance_df["on"] = appliance_df["Setpoint"] <= offset_now
 
     return appliance_df
 
@@ -74,24 +72,24 @@ def get_power_based_states_ungroped(
     priority, change their switch state to false and do the check again.
     """
 
-    only_on_df = switch_states[switch_states["can_be_on"] == True].copy()
+    only_on_df = switch_states[switch_states["on"] == True].copy()
 
     # check total power draw for all "on"
     def get_power_draw(switch_df: pd.DataFrame) -> float:
-        return switch_df[switch_df["can_be_on"] == True]["Power"].sum()
+        return switch_df[switch_df["on"] == True]["Power"].sum()
 
     while get_power_draw(only_on_df) > power_limit:
         # prevent race condition
         if power_limit < 0:
             raise ValueError("Max power level can not be negative.")
 
-        # only_on_df = only_on_df[only_on_df["can_be_on"] == True].copy()
-        lowest_prio_on = only_on_df[only_on_df["can_be_on"]]["Priority"].max()
+        # only_on_df = only_on_df[only_on_df["on"] == True].copy()
+        lowest_prio_on = only_on_df[only_on_df["on"]]["Priority"].max()
 
         removal_idx = only_on_df[only_on_df["Priority"] == lowest_prio_on].index
         # Change selected row's value to False
         changed_row = only_on_df.loc[removal_idx]
-        changed_row["can_be_on"] = False
+        changed_row["on"] = False
         # remove the unwanted row
         only_on_df = only_on_df.drop(removal_idx)
         # add the changed row back
