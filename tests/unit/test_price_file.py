@@ -1,6 +1,7 @@
 import json
 from unittest.mock import mock_open, patch
 
+import pytest
 from freezegun import freeze_time
 
 from price_driven_switch.backend.price_file import PriceFile
@@ -8,6 +9,7 @@ from price_driven_switch.backend.tibber import TibberConnection
 
 
 class TestPriceFile:
+    @pytest.mark.unit
     @freeze_time("2023-05-06 18:25")
     def test_load_price_file(self, json_string_fixture, file_date_fixture):
         mock_tibber = TibberConnection("test_token")
@@ -27,6 +29,7 @@ class TestPriceFile:
         loaded_api_response = json.loads(json_string_fixture).get("api_response")
         assert api_dict == loaded_api_response
 
+    @pytest.mark.unit
     @freeze_time("2023-05-06 18:25")
     def test_check_file_no_file(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
@@ -40,6 +43,7 @@ class TestPriceFile:
 
         mock_update.assert_called_once()
 
+    @pytest.mark.unit
     @freeze_time("2023-05-07 18:25")
     def test_check_file_out_of_date(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
@@ -57,6 +61,7 @@ class TestPriceFile:
 
         mock_write.assert_called_once()
 
+    @pytest.mark.unit
     @freeze_time("2023-05-06 19:25")
     def test_check_file_up_to_date(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
@@ -74,6 +79,7 @@ class TestPriceFile:
 
         mock_write.assert_not_called()
 
+    @pytest.mark.unit
     @freeze_time("2023-05-06 18:25")
     def test_load_prices(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
@@ -87,6 +93,7 @@ class TestPriceFile:
 
         assert result == {"some_key": "some_value"}
 
+    @pytest.mark.unit
     @freeze_time("2021-01-02 00:15")
     def test_check_out_of_date(self):
         mock_tibber = TibberConnection("test_token")
@@ -96,6 +103,7 @@ class TestPriceFile:
         assert price_file._check_out_of_date("2021-01-01 12:15") is True
         assert price_file._check_out_of_date("2021-01-02 00:05") is False
 
+    @pytest.mark.unit
     @freeze_time("2021-01-01 13:15")
     def test_check_out_of_date_case_2(self):
         mock_tibber = TibberConnection("test_token")
@@ -107,6 +115,7 @@ class TestPriceFile:
         assert price_file._check_out_of_date("2021-01-01 11:15") is True
         assert price_file._check_out_of_date("2020-12-31 23:05") is True
 
+    @pytest.mark.unit
     @freeze_time("2021-01-01 12:15")
     def test_check_out_of_date_case_3(self):
         mock_tibber = TibberConnection("test_token")
@@ -115,6 +124,7 @@ class TestPriceFile:
         assert price_file._check_out_of_date("2021-01-01 11:15") is False
         assert price_file._check_out_of_date("2020-12-31 23:05") is True
 
+    @pytest.mark.unit
     def test_update_price_file(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
@@ -127,6 +137,7 @@ class TestPriceFile:
         mock_json_dump.assert_called_once()
         mock_file.assert_called_once_with(price_file.path, mode="w", encoding="utf-8")
 
+    @pytest.mark.unit
     def test_load_prices_from_server(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
@@ -134,6 +145,7 @@ class TestPriceFile:
         result = price_file._load_prices_from_server()
         assert result["api_response"] == mock_tibber_get_prices
 
+    @pytest.mark.unit
     def test_write_prices_file(self, mock_tibber_get_prices):
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
