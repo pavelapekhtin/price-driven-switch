@@ -1,3 +1,6 @@
+import logging
+from typing import Callable
+
 import pandas as pd
 
 
@@ -64,7 +67,7 @@ def grouped_switches_pipeline(settings: dict, offset_now: float) -> pd.DataFrame
 
 
 def get_power_based_states_ungroped(
-    switch_states: pd.DataFrame, power_limit: float
+    switch_states: pd.DataFrame, power_limit: float, power_now: Callable[..., int]
 ) -> pd.DataFrame:
     """
     * Check if total power draw of all "on" appliances is exceeded.
@@ -75,16 +78,19 @@ def get_power_based_states_ungroped(
     only_on_df = switch_states[switch_states["on"] == True].copy()
 
     # check total power draw for all "on"
-    def get_power_draw(switch_df: pd.DataFrame) -> float:
-        return switch_df[switch_df["on"] == True]["Power"].sum()
+    # def get_active_appliances_max_power_draw(switch_df: pd.DataFrame) -> float:
+    #     return switch_df[switch_df["on"] == True]["Power"].sum() * 1000
 
-    while get_power_draw(only_on_df) > power_limit:
+    power_draw = power_now()
+
+    while power_draw > (power_limit * 1000):
         # prevent race condition
         if power_limit < 0:
             raise ValueError("Max power level can not be negative.")
 
         # only_on_df = only_on_df[only_on_df["on"] == True].copy()
         lowest_prio_on = only_on_df[only_on_df["on"]]["Priority"].max()
+        print(lowest_prio_on)
 
         removal_idx = only_on_df[only_on_df["Priority"] == lowest_prio_on].index
         # Change selected row's value to False
@@ -94,5 +100,7 @@ def get_power_based_states_ungroped(
         only_on_df = only_on_df.drop(removal_idx)
         # add the changed row back
         only_on_df = pd.concat([only_on_df, changed_row])
+        power_draw = power_draw - (changed_row["Power"].item() * 1000)
+        print(power_draw)
 
     return only_on_df

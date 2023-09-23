@@ -82,6 +82,16 @@ def mock_tibber_get_prices():
         yield mock_data
 
 
+@pytest.fixture
+def mock_tibber_get_power():
+    mock_data = 2354
+    with patch(
+        "price_driven_switch.backend.tibber.TibberConnection.get_current_power",
+        return_value=mock_data,
+    ):
+        yield mock_data
+
+
 # Tibber fixtures
 
 

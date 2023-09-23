@@ -23,6 +23,12 @@ class TestTibbberConnection:
         assert isinstance(tibber.connection, GraphqlClient)
 
     @pytest.mark.integration
+    def test_get_current_power(self, tibber_test_token):
+        tibber = TibberConnection(tibber_test_token)
+        assert isinstance(tibber.get_current_power(), int)
+        assert tibber.get_current_power() > 0
+
+    @pytest.mark.integration
     def test_check_token_validity(self, tibber_test_token):
         tibber = TibberConnection(tibber_test_token)
         assert tibber.check_token_validity() is True

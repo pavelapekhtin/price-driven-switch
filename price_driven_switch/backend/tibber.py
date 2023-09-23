@@ -25,6 +25,15 @@ PRICE_NO_TAX_QUERY = """
 }
 """
 
+CURRENT_POWER_QUERY = """
+subscription{
+  liveMeasurement(homeId:"1bb41b16-0583-4e94-b20b-6482fd6a13d4"){
+    power
+  }
+}
+"""
+
+
 # TODO: add token loading from file
 
 load_dotenv("price_driven_switch/config/.env", verbose=True)
@@ -39,6 +48,23 @@ class TibberConnection:
         response = asyncio.run(
             self.connection.execute_async(
                 PRICE_NO_TAX_QUERY, headers={"Authorization": self.api_token}
+            )
+        )
+        try:
+            _ = response["errors"]  #  Check if there are any errors in the response
+            if response["errors"][0]["extensions"]["code"] == "UNAUTHENTICATED":
+                raise ConnectionRefusedError(
+                    "Authentication failed. Check your Tibber API token."
+                )
+        except KeyError:  # no errors in response
+            pass
+
+        return response
+
+    def get_current_power(self) -> int:
+        response = asyncio.run(
+            self.connection.execute_async(
+                CURRENT_POWER_QUERY, headers={"Authorization": self.api_token}
             )
         )
         try:
