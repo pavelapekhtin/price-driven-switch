@@ -5,12 +5,12 @@ import pandas as pd
 import plotly.graph_objects as go  # type: ignore
 import streamlit as st
 
-from price_driven_switch.backend.configuration import load_setpoints, save_api_key
+from price_driven_switch.backend.configuration import load_settings_file, save_api_key
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
 def load_setpoints_cached():
-    return load_setpoints()
+    return load_settings_file()
 
 
 def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:

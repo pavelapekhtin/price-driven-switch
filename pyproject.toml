@@ -34,6 +34,7 @@ types-toml = "^0.10.8.7"
 pandas-stubs = "^2.0.3.230814"
 black = "^23.7.0"
 ipykernel = "^6.25.2"
+hypothesis = "^6.86.2"
 
 [tool.mypy]
 exclude = "^tests/.*"

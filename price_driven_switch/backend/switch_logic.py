@@ -66,41 +66,36 @@ def grouped_switches_pipeline(settings: dict, offset_now: float) -> pd.DataFrame
     return output
 
 
-def get_power_based_states_ungroped(
-    switch_states: pd.DataFrame, power_limit: float, power_now: Callable[..., int]
+def limit_power(
+    switch_states: pd.DataFrame, power_limit: float, power_now: int
 ) -> pd.DataFrame:
-    """
-    * Check if total power draw of all "on" appliances is exceeded.
-    * If it is, loop throug appliances starting with lowest
-    priority, change their switch state to false and do the check again.
-    """
+    power_now_kW = power_now / 1000.0
 
-    only_on_df = switch_states[switch_states["on"] == True].copy()
+    # Find the appliance with the highest priority (lowest 'Priority' value)
+    highest_priority_appliance = switch_states.sort_values("Priority").iloc[0]
 
-    # check total power draw for all "on"
-    # def get_active_appliances_max_power_draw(switch_df: pd.DataFrame) -> float:
-    #     return switch_df[switch_df["on"] == True]["Power"].sum() * 1000
+    # If power_limit is lower than the highest priority appliance, turn everything off
+    if power_limit < highest_priority_appliance["Power"]:
+        switch_states["on"] = False
+        return switch_states
 
-    power_draw = power_now()
+    # If power_now is already below the limit, no need to turn off anything
+    if power_now_kW <= power_limit:
+        return switch_states
 
-    while power_draw > (power_limit * 1000):
-        # prevent race condition
-        if power_limit < 0:
-            raise ValueError("Max power level can not be negative.")
+    # Sort DataFrame by 'Priority' in descending order so that lower priorities are turned off first
+    sorted_states = switch_states.sort_values("Priority", ascending=False)
 
-        # only_on_df = only_on_df[only_on_df["on"] == True].copy()
-        lowest_prio_on = only_on_df[only_on_df["on"]]["Priority"].max()
-        print(lowest_prio_on)
+    for index, row in sorted_states.iterrows():
+        if row["on"]:
+            new_power = power_now_kW - row["Power"]
+            if new_power <= power_limit:
+                sorted_states.at[index, "on"] = False
+                break
+            power_now_kW = new_power
+            sorted_states.at[index, "on"] = False
 
-        removal_idx = only_on_df[only_on_df["Priority"] == lowest_prio_on].index
-        # Change selected row's value to False
-        changed_row = only_on_df.loc[removal_idx]
-        changed_row["on"] = False
-        # remove the unwanted row
-        only_on_df = only_on_df.drop(removal_idx)
-        # add the changed row back
-        only_on_df = pd.concat([only_on_df, changed_row])
-        power_draw = power_draw - (changed_row["Power"].item() * 1000)
-        print(power_draw)
+    # Update the original DataFrame to reflect these changes
+    switch_states.update(sorted_states)
 
-    return only_on_df
+    return switch_states
