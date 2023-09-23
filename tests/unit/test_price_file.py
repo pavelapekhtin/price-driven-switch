@@ -5,7 +5,7 @@ import pytest
 from freezegun import freeze_time
 
 from price_driven_switch.backend.price_file import PriceFile
-from price_driven_switch.backend.tibber import TibberConnection
+from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
 class TestPriceFile:

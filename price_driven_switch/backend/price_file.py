@@ -2,7 +2,7 @@ import datetime as dt
 import json
 import os
 
-from price_driven_switch.backend.tibber import TibberConnection
+from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
 class PriceFile:

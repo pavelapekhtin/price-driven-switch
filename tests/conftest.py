@@ -76,7 +76,7 @@ def mock_get_switch_states():
 def mock_tibber_get_prices():
     mock_data = "a"
     with patch(
-        "price_driven_switch.backend.tibber.TibberConnection.get_prices",
+        "price_driven_switch.backend.tibber_connection.TibberConnection.get_prices",
         return_value=mock_data,
     ):
         yield mock_data
@@ -86,7 +86,7 @@ def mock_tibber_get_prices():
 def mock_tibber_get_power():
     mock_data = 2354
     with patch(
-        "price_driven_switch.backend.tibber.TibberConnection.get_current_power",
+        "price_driven_switch.backend.tibber_connection.TibberConnection.get_current_power",
         return_value=mock_data,
     ):
         yield mock_data

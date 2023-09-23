@@ -1,7 +1,9 @@
+import asyncio
+
 import pytest
 from python_graphql_client import GraphqlClient
 
-from price_driven_switch.backend.tibber import TibberConnection
+from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
 class TestTibbberConnection:
@@ -25,8 +27,8 @@ class TestTibbberConnection:
     @pytest.mark.integration
     def test_get_current_power(self, tibber_test_token):
         tibber = TibberConnection(tibber_test_token)
-        assert isinstance(tibber.get_current_power(), int)
-        assert tibber.get_current_power() > 0
+        loop = asyncio.get_event_loop()
+        assert asyncio.run(tibber.get_current_power()) > 0
 
     @pytest.mark.integration
     def test_check_token_validity(self, tibber_test_token):
