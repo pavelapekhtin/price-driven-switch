@@ -80,7 +80,7 @@ def limit_power(
         return switch_states
 
     # If power_now is already below the limit, no need to turn off anything
-    if power_now_kW <= power_limit:
+    if power_now_kW < power_limit:
         return switch_states
 
     # Sort DataFrame by 'Priority' in descending order so that lower priorities are turned off first
@@ -89,7 +89,7 @@ def limit_power(
     for index, row in sorted_states.iterrows():
         if row["on"]:
             new_power = power_now_kW - row["Power"]
-            if new_power <= power_limit:
+            if new_power < power_limit:
                 sorted_states.at[index, "on"] = False
                 break
             power_now_kW = new_power
