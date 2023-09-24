@@ -17,5 +17,5 @@ from price_driven_switch.backend.tibber_connection import TibberConnection
 settings = load_settings_file("tests/fixtures/settings_test.toml")
 switch_states = ungrouped_switches_pipeline(settings, 0.7)
 
-result = limit_power(switch_states, 1.0, 1900)
+result = limit_power(switch_states, 2, 2800)
 print(result)
