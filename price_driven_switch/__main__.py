@@ -46,7 +46,13 @@ def create_on_status_dict(switches_df: pd.DataFrame) -> Dict[str, int]:
 async def startup_event():
     global tibber_instance
     tibber_instance = TibberConnection()
-    asyncio.create_task(tibber_instance.current_power_subscription())
+    global task
+    task = asyncio.create_task(tibber_instance.current_power_subscription())
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    task.cancel()
 
 
 @app.get("/")

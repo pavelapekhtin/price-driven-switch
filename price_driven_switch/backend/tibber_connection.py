@@ -4,6 +4,7 @@ import os
 import aiohttp
 import tibber.const
 from dotenv import load_dotenv
+from loguru import logger
 from python_graphql_client import GraphqlClient  # type: ignore
 
 TIBBER_API_ENDPOINT = "https://api.tibber.com/v1-beta/gql"
@@ -82,14 +83,20 @@ class TibberConnection:
         else:
             self.power_reading = 0
 
-    async def current_power_subscription(self) -> int:
+    async def current_power_subscription(self) -> int | None:
         async with aiohttp.ClientSession() as session:
             tibber_connection = tibber.Tibber(
                 self.api_token, websession=session, user_agent="change_this"
             )
             await tibber_connection.update_info()
-        home = tibber_connection.get_homes()[0]
-        await home.rt_subscribe(callback=self.callback)
 
-        while True:
-            await asyncio.sleep(10)
+        home = tibber_connection.get_homes()[0]
+        try:
+            await home.rt_subscribe(callback=self.callback)
+            while True:
+                await asyncio.sleep(10)
+        except asyncio.CancelledError:
+            logger.info("Real-time subscription is being cancelled.")
+        finally:
+            logger.info("Unsubscribing from Tibber real-time data.")
+            home.rt_unsubscribe()
