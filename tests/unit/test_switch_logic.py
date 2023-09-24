@@ -17,7 +17,6 @@ def test_load_appliances_df(settings_dict_fixture) -> None:
                 "Setpoint",
                 "Power",
                 "Priority",
-                "Group",
             ]
         )
     )

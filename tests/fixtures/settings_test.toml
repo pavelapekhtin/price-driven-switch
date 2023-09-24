@@ -2,19 +2,16 @@
 Setpoint = 0.5
 Power = 1.5
 Priority = 2
-Group = "Boilers"
 
 [Appliances."Boiler 2"]
 Setpoint = 0.5
 Power = 1.0
 Priority = 1
-Group = "Boilers"
 
 [Appliances."Floor"]
 Setpoint = 0.5
 Power = 0.8
 Priority = 3
-Group = ""
 
 [Settings]
 MaxPower = 5.0

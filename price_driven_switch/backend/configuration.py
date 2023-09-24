@@ -14,9 +14,9 @@ PATH_SETTINGS = "price_driven_switch/config/settings.toml"
 
 default_settings_toml = {
     "Appliances": {
-        "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
-        "Floor": {"Group": "B", "Power": 1.0, "Priority": 1, "Setpoint": 0.5},
-        "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        "Boilers": {"Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+        "Floor": {"Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+        "Other": {"Power": 0.8, "Priority": 3, "Setpoint": 0.5},
     },
     "Settings": {"MaxPower": 5.0, "Timezone": "Europe/Oslo"},
 }
@@ -35,7 +35,6 @@ def create_default_settings_if_none(
 
 
 class Appliance(BaseModel):
-    Group: str
     Power: float
     Priority: int = Field(..., ge=1)
     Setpoint: float = Field(..., ge=0, le=1)  # Setpoint must be between 0 and 1
