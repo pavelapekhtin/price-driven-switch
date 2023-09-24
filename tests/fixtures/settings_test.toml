@@ -14,5 +14,5 @@ Power = 0.8
 Priority = 3
 
 [Settings]
-MaxPower = 5.0
+MaxPower = 1.0
 Timezone = "Europe/Oslo"

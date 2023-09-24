@@ -39,9 +39,6 @@ def create_on_status_dict(switches_df: pd.DataFrame) -> Dict[str, int]:
     return on_status_dict
 
 
-# tibber_instance = None
-
-
 @app.on_event("startup")
 async def startup_event():
     global tibber_instance

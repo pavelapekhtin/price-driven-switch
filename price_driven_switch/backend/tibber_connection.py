@@ -28,17 +28,6 @@ PRICE_NO_TAX_QUERY = """
 }
 """
 
-CURRENT_POWER_QUERY = """
-subscription{
-  liveMeasurement(homeId:"1bb41b16-0583-4e94-b20b-6482fd6a13d4"){
-    power
-  }
-}
-"""
-
-
-# TODO: add token loading from file
-
 load_dotenv("price_driven_switch/config/.env", verbose=True)
 TIBBER_TOKEN = str(os.environ.get("TIBBER_TOKEN"))
 
@@ -83,7 +72,7 @@ class TibberConnection:
         else:
             self.power_reading = 0
 
-    async def current_power_subscription(self) -> int | None:
+    async def current_power_subscription(self, once: bool = False) -> int | None:
         async with aiohttp.ClientSession() as session:
             tibber_connection = tibber.Tibber(
                 self.api_token, websession=session, user_agent="change_this"
@@ -93,10 +82,13 @@ class TibberConnection:
         home = tibber_connection.get_homes()[0]
         try:
             await home.rt_subscribe(callback=self.callback)
+            if once:
+                await asyncio.sleep(10)  # Wait for the first callback
+                return self.power_reading
             while True:
                 await asyncio.sleep(10)
         except asyncio.CancelledError:
-            logger.info("Real-time subscription is being cancelled.")
+            print("Real-time subscription is being cancelled.")
         finally:
-            logger.info("Unsubscribing from Tibber real-time data.")
+            print("Unsubscribing from Tibber real-time data.")
             home.rt_unsubscribe()
