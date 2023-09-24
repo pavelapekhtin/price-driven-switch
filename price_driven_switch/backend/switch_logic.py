@@ -37,16 +37,22 @@ def limit_power(
 
     power_now_kw = power_now / 1000.0
 
+    logger.info(f"Current power draw is {power_now_kw} kW")
+    logger.info(f"Power limit is {power_limit} kW")
     # Find the appliance with the highest priority (lowest 'Priority' value)
     highest_priority_appliance = switch_states.sort_values("Priority").iloc[0]
 
     # If power_limit is lower than the highest priority appliance, turn everything off
     if power_limit < highest_priority_appliance["Power"]:
+        logger.info(
+            "Power limit is lower than the highest priority appliance, turning everything off"
+        )
         switch_states["on"] = False
         return switch_states
 
     # If power_now is already below the limit, no need to turn off anything
     if power_now_kw < power_limit:
+        logger.info("Power is already below limit, no need to turn off anything")
         return switch_states
 
     # Sort DataFrame by 'Priority' in descending order so that lower priorities are turned off first
@@ -57,9 +63,11 @@ def limit_power(
             new_power = power_now_kw - row["Power"]
             if new_power < power_limit:
                 sorted_states.at[index, "on"] = False
+                logger.info(f"Turning off {index} to stay below power limit")
                 break
             power_now_kw = new_power
             sorted_states.at[index, "on"] = False
+            logger.info(f"Turning off {index} to stay below power limit")
 
     # Update the original DataFrame to reflect these changes
     switch_states.update(sorted_states)

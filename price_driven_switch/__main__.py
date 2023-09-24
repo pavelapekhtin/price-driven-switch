@@ -56,7 +56,6 @@ async def switch_states():
         power_limit=power_limit(),
         power_now=tibber_instance.power_reading,
     )
-    logger.debug(f"Power now {tibber_instance.power_reading}")
     return create_on_status_dict(power_and_price_switch_states)
 
 
