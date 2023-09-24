@@ -1,7 +1,5 @@
-import logging
-from typing import Callable
-
 import pandas as pd
+from loguru import logger
 
 
 def load_appliances_df(settings: dict) -> pd.DataFrame:
@@ -19,13 +17,12 @@ def get_price_based_states(
     appliance_df: pd.DataFrame,
     offset_now: float,
 ) -> pd.DataFrame:
-    appliance_df["on"] = appliance_df["Setpoint"] <= offset_now
+    appliance_df["on"] = appliance_df["Setpoint"] >= offset_now
 
     return appliance_df
 
 
-def ungrouped_switches_pipeline(settings: dict, offset_now: float) -> pd.DataFrame:
-    # TODO: give a sensible name
+def set_price_only_based_states(settings: dict, offset_now: float) -> pd.DataFrame:
     output = get_price_based_states(load_appliances_df(settings), offset_now)
     return output
 
@@ -33,7 +30,12 @@ def ungrouped_switches_pipeline(settings: dict, offset_now: float) -> pd.DataFra
 def limit_power(
     switch_states: pd.DataFrame, power_limit: float, power_now: int
 ) -> pd.DataFrame:
-    power_now_kW = power_now / 1000.0
+    # Fallback to price only if power_now is 0 (i.e. failed to get current power)
+    if power_now == 0:
+        logger.warning("Failed to get current power, using price only logic")
+        return switch_states
+
+    power_now_kw = power_now / 1000.0
 
     # Find the appliance with the highest priority (lowest 'Priority' value)
     highest_priority_appliance = switch_states.sort_values("Priority").iloc[0]
@@ -44,7 +46,7 @@ def limit_power(
         return switch_states
 
     # If power_now is already below the limit, no need to turn off anything
-    if power_now_kW < power_limit:
+    if power_now_kw < power_limit:
         return switch_states
 
     # Sort DataFrame by 'Priority' in descending order so that lower priorities are turned off first
@@ -52,11 +54,11 @@ def limit_power(
 
     for index, row in sorted_states.iterrows():
         if row["on"]:
-            new_power = power_now_kW - row["Power"]
+            new_power = power_now_kw - row["Power"]
             if new_power < power_limit:
                 sorted_states.at[index, "on"] = False
                 break
-            power_now_kW = new_power
+            power_now_kw = new_power
             sorted_states.at[index, "on"] = False
 
     # Update the original DataFrame to reflect these changes

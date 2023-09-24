@@ -39,6 +39,7 @@ def test_limit_power_specific_cases():
         {"power_limit": 2, "power_now": 2800, "expected_on": [True, True, False]},
         {"power_limit": 2, "power_now": 1900, "expected_on": [True, True, True]},
         {"power_limit": 3, "power_now": 5300, "expected_on": [False, False, False]},
+        {"power_limit": 3, "power_now": 0, "expected_on": [True, True, True]},
     ]
 
     for case in test_cases:

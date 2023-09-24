@@ -1,6 +1,5 @@
 import asyncio
 import os
-from typing import Optional
 
 import aiohttp
 import tibber.const
@@ -46,7 +45,7 @@ TIBBER_TOKEN = str(os.environ.get("TIBBER_TOKEN"))
 class TibberConnection:
     def __init__(self, api_token: str = TIBBER_TOKEN) -> None:
         self.api_token = api_token
-        self.first_reading_done = asyncio.Event()
+        self.power_reading: int = 0
 
     def get_prices(self) -> dict:
         response = asyncio.run(
@@ -76,34 +75,21 @@ class TibberConnection:
             return False
         return True
 
-    async def get_current_power(self) -> int:
-        power_reading: int | None = None
+    def callback(self, pkg) -> None:
+        data = pkg.get("data")
+        if data is not None:
+            self.power_reading = data.get("liveMeasurement", {}).get("power")
+        else:
+            self.power_reading = 0
 
-        def callback(pkg) -> int | None:
-            nonlocal power_reading
-            data = pkg.get("data")
-            if data is None:
-                return
-            power_reading = data.get("liveMeasurement").get("power")
-            self.first_reading_done.set()
-
+    async def current_power_subscription(self) -> int:
         async with aiohttp.ClientSession() as session:
             tibber_connection = tibber.Tibber(
-                self.api_token,
-                websession=session,
-                user_agent="price_driven_switch/0.4.5",
+                self.api_token, websession=session, user_agent="change_this"
             )
             await tibber_connection.update_info()
-
         home = tibber_connection.get_homes()[0]
-        await home.rt_subscribe(callback)
+        await home.rt_subscribe(callback=self.callback)
 
-        # Wait for the first reading
-        await self.first_reading_done.wait()
-
-        home.rt_unsubscribe()
-
-        if power_reading is not None:
-            return power_reading
-        else:
-            raise ValueError("Failed to get power reading.")
+        while True:
+            await asyncio.sleep(10)
