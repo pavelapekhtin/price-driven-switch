@@ -37,11 +37,9 @@ class TibberConnection:
         self.api_token = api_token
         self.power_reading: int = 0
 
-    def get_prices(self) -> dict:
-        response = asyncio.run(
-            self.connection.execute_async(
-                PRICE_NO_TAX_QUERY, headers={"Authorization": self.api_token}
-            )
+    async def get_prices(self) -> dict:
+        response = await self.connection.execute_async(
+            PRICE_NO_TAX_QUERY, headers={"Authorization": self.api_token}
         )
         try:
             _ = response["errors"]  #  Check if there are any errors in the response
@@ -58,9 +56,9 @@ class TibberConnection:
     def connection(self) -> GraphqlClient:
         return GraphqlClient(endpoint=TIBBER_API_ENDPOINT)
 
-    def check_token_validity(self) -> bool:
+    async def check_token_validity(self) -> bool:
         try:
-            _ = self.get_prices()
+            _ = await self.get_prices()
         except ConnectionRefusedError:
             return False
         return True
@@ -88,7 +86,10 @@ class TibberConnection:
             while True:
                 await asyncio.sleep(10)
         except asyncio.CancelledError:
-            print("Real-time subscription is being cancelled.")
+            logger.info("Real-time subscription is being cancelled.")
         finally:
-            print("Unsubscribing from Tibber real-time data.")
-            home.rt_unsubscribe()
+            asyncio.ensure_future(self._unsubscribe(home))
+
+    async def _unsubscribe(self, home):
+        logger.info("Unsubscribing from Tibber real-time data.")
+        home.rt_unsubscribe()

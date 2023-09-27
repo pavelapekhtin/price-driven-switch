@@ -14,18 +14,18 @@ class PriceFile:
         self.tibber_connection = tibber_connection
         self.path = path
 
-    def load_prices(self) -> dict:
-        self._check_file()
+    async def load_prices(self) -> dict:
+        await self._check_file()
         _, api_dict = self._load_price_file()
         return api_dict
 
-    def _check_file(self) -> None:
+    async def _check_file(self) -> None:
         if not os.path.exists(self.path):
-            self._update_price_file()
+            await self._update_price_file()
         else:
             file_date, _ = self._load_price_file()
             if self._check_out_of_date(file_date):
-                self._write_prices_file(self._load_prices_from_server())
+                self._write_prices_file(await self._load_prices_from_server())
 
     def _check_out_of_date(self, date: str) -> bool:
         file_date = dt.datetime.strptime(date, "%Y-%m-%d %H:%M")
@@ -52,11 +52,11 @@ class PriceFile:
             file_date = json_data.get("timestamp")
             return file_date, api_response
 
-    def _update_price_file(self) -> None:
-        self._write_prices_file(self._load_prices_from_server())
+    async def _update_price_file(self) -> None:
+        self._write_prices_file(await self._load_prices_from_server())
 
-    def _load_prices_from_server(self) -> dict:
-        api_response = self.tibber_connection.get_prices()
+    async def _load_prices_from_server(self) -> dict:
+        api_response = await self.tibber_connection.get_prices()
         file_data = {
             "timestamp": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
             "api_response": api_response,

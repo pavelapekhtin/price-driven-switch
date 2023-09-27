@@ -23,11 +23,16 @@ app = FastAPI()
 
 settings = lambda: load_settings_file("price_driven_switch/config/settings.toml")
 
-offset_now = lambda: Prices(PriceFile().load_prices()).offset_now
 
-price_only_switch_states = lambda: set_price_only_based_states(
-    settings=settings(), offset_now=offset_now()
-)
+async def offset_now():
+    return Prices(await PriceFile().load_prices()).offset_now
+
+
+async def price_only_switch_states():
+    return set_price_only_based_states(
+        settings=settings(), offset_now=await offset_now()
+    )
+
 
 power_limit = lambda: settings()["Settings"]["MaxPower"]
 
@@ -54,8 +59,9 @@ async def shutdown_event():
 
 @app.get("/")
 async def switch_states():
+    switch_states_async = await price_only_switch_states()
     power_and_price_switch_states = limit_power(
-        switch_states=price_only_switch_states(),
+        switch_states=switch_states_async,
         power_limit=power_limit(),
         power_now=tibber_instance.power_reading,
     )
