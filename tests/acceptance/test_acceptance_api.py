@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -10,6 +10,9 @@ from price_driven_switch.__main__ import (
     shutdown_event,
     startup_event,
 )
+from price_driven_switch.backend.price_file import PriceFile
+from price_driven_switch.backend.prices import Prices
+from tests.conftest import TEST_TOKEN
 
 client = TestClient(app)
 
@@ -29,23 +32,24 @@ test_cases = [
 
 @pytest.mark.parametrize("test_case", test_cases)
 @pytest.mark.asyncio
-@pytest.mark.e2e
-async def test_switch_states(test_case, settings_dict_fixture):
+@pytest.mark.unit
+async def test_switch_states(test_case, settings_dict_fixture, tibber_test_token):
     await startup_event()
 
     try:
-        mock_tibber = MagicMock(spec=TibberConnection)
-        mock_tibber.power_reading = test_case["power_reading"]
-        app.state.tibber_instance = mock_tibber
+        test_tibber_instance = TibberConnection(tibber_test_token)
+        test_tibber_instance.power_reading = test_case["power_reading"]
+        app.state.tibber_instance = test_tibber_instance
 
         with patch(
-            "price_driven_switch.__main__.TibberConnection", return_value=mock_tibber
+            "price_driven_switch.__main__.TibberConnection",
+            return_value=test_tibber_instance,
         ) as mock_tibber_main, patch(
             "price_driven_switch.backend.tibber_connection.TibberConnection",
-            return_value=mock_tibber,
+            return_value=test_tibber_instance,
         ) as mock_tibber_backend:
             await startup_event()
-            app.state.tibber_instance = mock_tibber
+            app.state.tibber_instance = test_tibber_instance
 
             with patch(
                 "price_driven_switch.__main__.load_settings_file"
