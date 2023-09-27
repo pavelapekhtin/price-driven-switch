@@ -15,7 +15,6 @@ class Prices:
             return 0.5  # This assumes that if all prices are the same, the offset is in the middle. You can change this behavior if needed.
 
         ratio = (self.price_now - min_price) / (max_price - min_price)
-        # TODO: change the ratio to offset from mean price
 
         return ratio
 
@@ -40,7 +39,6 @@ class Prices:
         if max_price == min_price:
             return min_price  # This assumes that if all prices are the same, any offset corresponds to this single price. You can change this behavior if needed.
 
-        # TODO: change the ratio to offset from mean price
         price_from_offset = min_price + (max_price - min_price) * offset
         return price_from_offset
 

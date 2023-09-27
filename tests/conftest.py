@@ -9,6 +9,7 @@ import pytz
 
 from price_driven_switch.backend.configuration import load_settings_file
 from price_driven_switch.backend.prices import Prices
+from price_driven_switch.backend.tibber_connection import TibberConnection
 
 FIXTURE_PRICE_RATIO = 0.4
 FIXTURE_SETPOINTS = {"Boilers": 0.5, "Floor": 0.4, "Other": 0.3}
@@ -98,6 +99,11 @@ def mock_tibber_get_power():
 @pytest.fixture
 def tibber_test_token():
     yield TEST_TOKEN
+
+
+@pytest.fixture
+def tibber_instance_fixture():
+    return TibberConnection(TEST_TOKEN)
 
 
 # Price logic fixtures
