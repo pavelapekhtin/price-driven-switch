@@ -1,16 +1,30 @@
 import os
-from typing import Dict
+from typing import Any, Dict
 
 import pandas as pd
 import plotly.graph_objects as go  # type: ignore
 import streamlit as st
 
-from price_driven_switch.backend.configuration import load_settings_file, save_api_key
+from price_driven_switch.backend.configuration import (
+    load_settings_file,
+    save_api_key,
+    save_settings,
+    update_max_power,
+)
+from price_driven_switch.backend.switch_logic import load_appliances_df
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
-def load_setpoints_cached():
-    return load_settings_file()
+def extract_setpoints(input_dict: Dict[str, Any]) -> Dict[str, float]:
+    appliances = input_dict.get("Appliances", {})
+    setpoint_dict = {
+        name: appliance.get("Setpoint", 0.0) for name, appliance in appliances.items()
+    }
+    return setpoint_dict
+
+
+def load_setpoints() -> Dict[str, float]:
+    return extract_setpoints(load_settings_file())
 
 
 def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
@@ -100,24 +114,24 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:
     st.plotly_chart(fig)
 
 
-def check_token(token: str) -> None:
-    token_valid = TibberConnection(token).check_token_validity()
+async def check_token(token: str) -> None:
+    token_valid = await TibberConnection(token).check_token_validity()
     if token_valid:
         st.success("Connected to Tibber API")
     else:
         st.error("Connection Error. Check your API token.")
 
 
-def token_check_homepage() -> bool:
+async def token_check_homepage() -> bool:
     token = str(os.environ.get("TIBBER_TOKEN"))
-    token_valid = TibberConnection(token).check_token_validity()
+    token_valid = await TibberConnection(token).check_token_validity()
     if token_valid:
         return True
     else:
         return False
 
 
-def api_token_input() -> None:
+async def api_token_input() -> None:
     with st.container():  # Use a container to encapsulate widgets and avoid key conflicts.
         if os.environ.get("TIBBER_TOKEN"):
             token = st.text_input(
@@ -125,12 +139,23 @@ def api_token_input() -> None:
                 os.environ.get("TIBBER_TOKEN"),
                 key="api_token_input_1",
             )
-            check_token(token)
+            await check_token(token)
             save_api_key(token)
         else:
             token = st.text_input("Tibber API Token")
-            check_token(token)
+            await check_token(token)
             save_api_key(token)
+
+
+def power_limit_input() -> None:
+    max_power = st.number_input(
+        "Power Limit, kW",
+        key="max_power_input",
+        min_value=0.0,
+        step=1.0,
+        value=st.session_state.max_power_input,
+    )
+    save_settings(update_max_power(load_settings_file(), max_power))
 
 
 # Settings page functions

@@ -6,6 +6,7 @@ import toml
 from price_driven_switch.backend.configuration import (
     create_default_settings_if_none,
     default_settings_toml,
+    update_max_power,
     validate_settings,
 )
 
@@ -77,3 +78,32 @@ def test_check_settings_toml() -> None:
         validate_settings(wrong_structure)
         validate_settings(out_of_range_setpoint)
         validate_settings(missing_timezone)
+
+
+@pytest.mark.unit
+def test_update_max_power():
+    # Test with valid data
+    sample_data = {
+        "Appliances": {
+            "Boiler 1": {"Setpoint": 0.5, "Power": 1.5, "Priority": 2},
+            "Boiler 2": {"Setpoint": 0.5, "Power": 1.0, "Priority": 1},
+            "Floor": {"Setpoint": 0.5, "Power": 0.8, "Priority": 3},
+        },
+        "Settings": {"MaxPower": 1.0, "Timezone": "Europe/Oslo"},
+    }
+    new_max_power = 1.5
+    updated_data = update_max_power(sample_data, new_max_power)
+    assert updated_data["Settings"]["MaxPower"] == new_max_power
+
+    # Test with missing 'Settings' key
+    sample_data_missing_settings = {
+        "Appliances": {
+            "Boiler 1": {"Setpoint": 0.5, "Power": 1.5, "Priority": 2},
+            "Boiler 2": {"Setpoint": 0.5, "Power": 1.0, "Priority": 1},
+            "Floor": {"Setpoint": 0.5, "Power": 0.8, "Priority": 3},
+        }
+    }
+    updated_data_missing_settings = update_max_power(
+        sample_data_missing_settings, new_max_power
+    )
+    assert "Settings" not in updated_data_missing_settings
