@@ -1,3 +1,9 @@
+## 1.0.2 (2023-10-01)
+
+### Fix
+
+- **configuration.py**: enabled default settings file creation at first run
+
 ## 1.0.1 (2023-10-01)
 
 ### Fix
