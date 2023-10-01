@@ -1,3 +1,9 @@
+## 1.0.0 (2023-10-01)
+
+### Fix
+
+- **pyproject.toml**: major_version_zero set to false
+
 ## 0.5.0 (2023-10-01)
 
 ### BREAKING CHANGE
