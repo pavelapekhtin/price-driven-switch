@@ -18,6 +18,8 @@ st.sidebar.title("Price Based Controller", anchor="top")
 
 
 async def main():
+    await token_check_homepage()
+
     prices = Prices(await PriceFile().load_prices())
 
     # SETPOINT SLIDERS ================
@@ -29,7 +31,7 @@ async def main():
     if load_setpoints() != slider_values:
         if st.button("Save Setpoints", use_container_width=True):
             save_settings(slider_values)
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.subheader("")
 

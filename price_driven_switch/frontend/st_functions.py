@@ -4,6 +4,7 @@ from typing import Any, Dict
 import pandas as pd
 import plotly.graph_objects as go  # type: ignore
 import streamlit as st
+from loguru import logger
 
 from price_driven_switch.backend.configuration import (
     load_settings_file,
@@ -11,7 +12,6 @@ from price_driven_switch.backend.configuration import (
     save_settings,
     update_max_power,
 )
-from price_driven_switch.backend.switch_logic import load_appliances_df
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
@@ -114,8 +114,8 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:
     st.plotly_chart(fig)
 
 
-async def check_token(token: str) -> None:
-    token_valid = await TibberConnection(token).check_token_validity()
+async def check_token(token: str | None) -> None:
+    token_valid = await TibberConnection(token).check_token_validity()  # type: ignore
     if token_valid:
         st.success("Connected to Tibber API")
     else:
@@ -140,7 +140,7 @@ async def api_token_input() -> None:
                 key="api_token_input_1",
             )
             await check_token(token)
-            save_api_key(token)
+            save_api_key(token)  # type: ignore
         else:
             token = st.text_input("Tibber API Token")
             await check_token(token)
@@ -155,15 +155,7 @@ def power_limit_input() -> None:
         step=1.0,
         value=st.session_state.max_power_input,
     )
-    save_settings(update_max_power(load_settings_file(), max_power))
-
-
-# Settings page functions
-
-
-def setpoints_to_dict(setpoints_df: pd.DataFrame) -> dict[str, float]:
-    setpoints_dict = {
-        row["Appliance Group"]: row["Setpoint"]
-        for index, row in setpoints_df.iterrows()
-    }
-    return setpoints_dict
+    logger.debug(f"Max power input: {max_power}")
+    logger.debug(f"Max power session: {st.session_state.max_power_input}")
+    if load_settings_file().get("Settings", {}).get("MaxPower") != max_power:
+        save_settings(update_max_power(load_settings_file(), max_power))  # type: ignore

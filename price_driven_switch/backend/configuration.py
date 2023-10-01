@@ -1,4 +1,3 @@
-import logging
 import os
 import threading
 from shutil import move
@@ -7,6 +6,7 @@ from typing import Any, Dict
 
 import toml
 from dotenv import load_dotenv, set_key
+from loguru import logger
 from pydantic import BaseModel, Field, model_validator
 
 load_dotenv("price_driven_switch/config/.env", verbose=True)
@@ -30,9 +30,9 @@ def create_default_settings_if_none(
         data = default_settings_toml
         with open(path, "w", encoding="utf-8") as file:
             toml.dump(data, file)
-            logging.debug("Default settings file created at %s", path)
+            logger.debug("Default settings file created at %s", path)
     else:
-        logging.debug("Settings file found at %s", path)
+        logger.debug("Settings file found at %s", path)
 
 
 class Appliance(BaseModel):
@@ -97,8 +97,10 @@ def update_max_power(data_dict: Dict[str, Any], new_max_power: float) -> Dict[st
 
 def save_settings(new_settings: dict, path: str = PATH_SETTINGS) -> None:
     validate_settings(new_settings)
+    logger.debug(f"Got settings dict: \n {new_settings}")
 
     def write():
+        logger.debug(f"Saving settings to {path}")
         with file_lock:
             with NamedTemporaryFile("w", delete=False) as tmp:
                 toml.dump(new_settings, tmp)
@@ -108,6 +110,7 @@ def save_settings(new_settings: dict, path: str = PATH_SETTINGS) -> None:
     if debounce_timer:
         debounce_timer.cancel()
     debounce_timer = threading.Timer(debounce_time, write)
+    logger.debug(f"Waiting {debounce_time} seconds before saving settings")
     debounce_timer.start()
 
 
