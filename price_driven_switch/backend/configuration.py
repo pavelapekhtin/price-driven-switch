@@ -16,11 +16,11 @@ PATH_SETTINGS = "price_driven_switch/config/settings.toml"
 
 default_settings_toml = {
     "Appliances": {
-        "Boilers": {"Power": 1.5, "Priority": 2, "Setpoint": 0.5},
-        "Floor": {"Power": 1.0, "Priority": 1, "Setpoint": 0.5},
-        "Other": {"Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        "Boiler 1": {"Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+        "Boiler 2": {"Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+        "Bathroom Floor": {"Power": 0.8, "Priority": 3, "Setpoint": 0.5},
     },
-    "Settings": {"MaxPower": 5.0, "Timezone": "Europe/Oslo"},
+    "Settings": {"MaxPower": 0.0, "Timezone": "Europe/Oslo"},
 }
 
 
@@ -126,3 +126,6 @@ def save_settings(new_settings: dict, path: str = PATH_SETTINGS) -> None:
 def save_api_key(api_key: str) -> None:
     set_key("price_driven_switch/config/.env", "TIBBER_TOKEN", api_key)
     os.environ["TIBBER_TOKEN"] = api_key
+
+
+create_default_settings_if_none()
