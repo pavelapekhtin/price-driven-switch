@@ -1,3 +1,18 @@
+## 0.5.0 (2023-10-01)
+
+### BREAKING CHANGE
+
+- Since new logic switches to new settings file structure, if you are updating an existing docker image, you will have to delete the volume that it depends on, since it still holds the old settings file.
+
+### Feat
+
+- **switch-logic**: prepare for release
+- **api-output**: api serves switches json that uses price and power logic
+
+### Fix
+
+- **main**: changed get_price pipline to async
+
 ## 0.4.5 (2023-09-11)
 
 ### Fix
