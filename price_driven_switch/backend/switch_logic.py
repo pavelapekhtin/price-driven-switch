@@ -35,6 +35,10 @@ def limit_power(
         logger.warning("Failed to get current power, using price only logic")
         return switch_states
 
+    if power_limit == 0:
+        logger.info("Power limit is set to 0, using only price logic")
+        return switch_states
+
     power_now_kw = power_now / 1000.0
 
     logger.info(f"Current power draw is {power_now_kw} kW")

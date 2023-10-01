@@ -42,7 +42,10 @@ Once you opened the web interface you should enter your Tibber tokern for the ap
 Your tibber token can be found at [https://developer.tibber.com/settings/accesstoken](https://developer.tibber.com/settings/accesstoken)
 At the Settings page of the webapp you can rename, add and remove appliances and edit their settings.
 
+
 You can also set the power draw for each appliance and its priority in the settings page.  If your home is equipped with Tibber Pulse or Watty, the app can check if the total power exceeds the set limit and turn off appliances starting with lowest priority to get the total power draw below the limit which comes handy with the new pricing model for the grid use in Norway.
+
+Set power limit in settings to 0 to disable this feature.
 
 The on/off state of the appliances can be accessed via a get request to the following address:
 ```http://your-server-address/api/```
