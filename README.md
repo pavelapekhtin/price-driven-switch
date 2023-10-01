@@ -40,7 +40,9 @@ On your local network you can access the web interface by going to the address o
 If you are running it locally you can access it at [http://localhost](http://localhost) or 127.0.0.1
 Once you opened the web interface you should enter your Tibber tokern for the app to work.
 Your tibber token can be found at [https://developer.tibber.com/settings/accesstoken](https://developer.tibber.com/settings/accesstoken)
-At the Settings page of the webapp you can rename, add and remove appliances.
+At the Settings page of the webapp you can rename, add and remove appliances and edit their settings.
+
+You can also set the power draw for each appliance and its priority in the settings page.  If your home is equipped with Tibber Pulse or Watty, the app can check if the total power exceeds the set limit and turn off appliances starting with lowest priority to get the total power draw below the limit which comes handy with the new pricing model for the grid use in Norway.
 
 The on/off state of the appliances can be accessed via a get request to the following address:
 ```http://your-server-address/api/```
@@ -72,5 +74,5 @@ Use this json to control your appliances via home automation software like Home 
 
 ## Future plans
 
+- [x] Add support for limiting the hourly load.
 - Add support for more price providers.
-- Add support for limiting the hourly load.
