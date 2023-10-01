@@ -38,9 +38,12 @@ power_limit = lambda: settings()["Settings"]["MaxPower"]
 
 
 def create_on_status_dict(switches_df: pd.DataFrame) -> Dict[str, int]:
-    on_status_dict = {}
+    on_status_dict: Dict[str, int] = {}
     for appliance, row in switches_df.iterrows():
-        on_status_dict[appliance] = 1 if row["on"] else 0
+        if appliance is not None:
+            on_status_dict[str(appliance)] = (
+                1 if row["on"] else 0
+            )  # Casting to str just to be safe
     return on_status_dict
 
 

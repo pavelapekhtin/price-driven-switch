@@ -70,7 +70,7 @@ class TibberConnection:
         else:
             self.power_reading = 0
 
-    async def current_power_subscription(self, once: bool = False) -> int | None:
+    async def current_power_subscription(self, once: bool = False) -> None | int:
         async with aiohttp.ClientSession() as session:
             tibber_connection = tibber.Tibber(
                 self.api_token, websession=session, user_agent="change_this"
@@ -89,6 +89,7 @@ class TibberConnection:
             logger.info("Real-time subscription is being cancelled.")
         finally:
             asyncio.ensure_future(self._unsubscribe(home))
+        return None
 
     async def _unsubscribe(self, home):
         logger.info("Unsubscribing from Tibber real-time data.")
