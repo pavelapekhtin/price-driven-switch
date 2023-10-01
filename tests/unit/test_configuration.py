@@ -2,6 +2,7 @@ import logging
 
 import pytest
 import toml
+from loguru import logger
 
 from price_driven_switch.backend.configuration import (
     create_default_settings_if_none,
@@ -9,6 +10,13 @@ from price_driven_switch.backend.configuration import (
     update_max_power,
     validate_settings,
 )
+
+captured_logs = []
+
+
+def sink(message):
+    global captured_logs
+    captured_logs.append(message)
 
 
 @pytest.mark.unit
@@ -26,16 +34,20 @@ def test_create_setpoints_file(tmp_path):
 
 
 @pytest.mark.unit
-def test_setpoints_file_already_exists(tmp_path, caplog):
-    # Create a dummy setpoints file
-    file_path = tmp_path / "setpoints.toml"
+def test_setpoints_file_already_exists(tmp_path):
+    global captured_logs
+    captured_logs = []
+
+    handler_id = logger.add(sink, format="{message}")
+
+    file_path = tmp_path / "settings.toml"
     file_path.touch()
+    create_default_settings_if_none(file_path)
 
-    with caplog.at_level(logging.DEBUG):
-        create_default_settings_if_none(file_path)
+    logger.remove(handler_id)
 
-    # Assert that the log message states the file was found
-    assert "Settings file found at" in caplog.text
+    found = any("Settings file found at" in log for log in captured_logs)
+    assert found, f"Log not found, captured logs were: {captured_logs}"
 
 
 @pytest.mark.unit

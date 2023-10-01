@@ -7,11 +7,12 @@ from price_driven_switch.backend.configuration import save_settings
 from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.prices import Prices
 from price_driven_switch.frontend.st_functions import (
-    api_token_input,
     generate_sliders,
     load_setpoints,
+    load_settings_file,
     plot_prices,
     token_check_homepage,
+    update_setpoints,
 )
 
 st.sidebar.title("Price Based Controller", anchor="top")
@@ -26,11 +27,20 @@ async def main():
 
     st.header("Setpoints")
 
-    slider_values = generate_sliders(load_setpoints())
+    original_settings = (
+        load_settings_file().copy()
+    )  # Assuming load_settings_file is your function to load all settings.
+    original_setpoints = load_setpoints()
 
-    if load_setpoints() != slider_values:
+    slider_values = generate_sliders(original_setpoints)
+
+    if original_setpoints != slider_values:
         if st.button("Save Setpoints", use_container_width=True):
-            save_settings(slider_values)
+            new_settings = original_settings.copy()
+            new_settings = update_setpoints(
+                new_settings, slider_values
+            )  # Assume update_setpoints is imported.
+            save_settings(new_settings)
             st.rerun()
     else:
         st.subheader("")

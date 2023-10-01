@@ -1,3 +1,4 @@
+import logging
 import os
 import threading
 from shutil import move
@@ -23,6 +24,14 @@ default_settings_toml = {
 }
 
 
+class PropagateHandler(logging.Handler):
+    def emit(self, record):
+        logging.getLogger(record.name).handle(record)
+
+
+logger.add(PropagateHandler(), format="{message} {extra}")
+
+
 def create_default_settings_if_none(
     path: str = PATH_SETTINGS,
 ) -> None:
@@ -30,9 +39,9 @@ def create_default_settings_if_none(
         data = default_settings_toml
         with open(path, "w", encoding="utf-8") as file:
             toml.dump(data, file)
-            logger.debug("Default settings file created at %s", path)
+            logger.debug(f"Default settings file created at {path}")
     else:
-        logger.debug("Settings file found at %s", path)
+        logger.debug(f"Settings file found at {path}")
 
 
 class Appliance(BaseModel):

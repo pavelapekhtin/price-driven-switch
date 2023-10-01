@@ -38,6 +38,21 @@ def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
     return new_dict
 
 
+def update_setpoints(
+    original_dict: Dict[str, Any], new_setpoints: Dict[str, float]
+) -> Dict[str, Any]:
+    if "Appliances" not in original_dict:
+        original_dict["Appliances"] = {}
+
+    for appliance_name, new_setpoint in new_setpoints.items():
+        if appliance_name in original_dict["Appliances"]:
+            original_dict["Appliances"][appliance_name]["Setpoint"] = new_setpoint
+        else:
+            original_dict["Appliances"][appliance_name] = {"Setpoint": new_setpoint}
+
+    return original_dict
+
+
 def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:
     if prices_df.empty:
         st.write("Tomorrow's prices are become available after 13:00")
