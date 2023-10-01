@@ -8,7 +8,27 @@ on:
       - '*'
 
 jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      is_main: ${{ steps.check-branch.outputs.is_main }}
+    steps:
+    - name: Check if tag is on main branch
+      id: check-branch
+      run: |
+        branch=$(git branch -r --contains tags/${{ github.ref_name }} | grep 'origin/main' || echo "")
+        echo "branch=$branch"
+        if [[ -z "$branch" ]]; then
+          echo "This tag was not pushed on main branch."
+          echo "is_main=false" >> $GITHUB_ENV
+        else
+          echo "This tag was pushed on main branch."
+          echo "is_main=true" >> $GITHUB_ENV
+        fi
+
   test:
+    needs: check-branch
+    if: needs.check-branch.outputs.is_main == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
