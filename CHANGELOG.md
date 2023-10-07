@@ -1,3 +1,15 @@
+## 2.0.0 (2023-10-07)
+
+### BREAKING CHANGE
+
+- Since streamlit now performs calls to FastAPI on 172.18.0.1 to get Tibber status, a network should be added to docker-compose.yml to reserve this address ffor cross-container communication. Update your local docker-compose file with the code fromt the file in the repository.
+
+### Feat
+
+- **app**: add subscription status to frontend
+- **streamlit**: added power draw to status page
+- **streamlit**: add status page
+
 ## 1.0.0 (2023-10-01)
 
 ### Fix
