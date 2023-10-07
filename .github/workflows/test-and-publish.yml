@@ -13,6 +13,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # fetch all history for all branches and tags
+
+    - name: Fetch tags
+      run: git fetch --tags
+
     - name: Check if tag is on main branch
       id: check-branch
       run: |
