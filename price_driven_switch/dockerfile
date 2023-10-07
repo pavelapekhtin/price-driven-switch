@@ -4,8 +4,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install Supervisord
-RUN apt-get update && apt-get install -y supervisor
+# Install Supervisord, Neovim and less
+RUN apt-get update && apt-get install -y supervisor neovim less
 
 # Copy pyproject.toml and poetry.lock files
 COPY ../pyproject.toml ../poetry.lock* /app/
