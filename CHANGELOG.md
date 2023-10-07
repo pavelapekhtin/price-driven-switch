@@ -4,18 +4,6 @@
 
 - **status-page**: do not show real-time info if power logic is disabled
 
-## 1.0.2 (2023-10-01)
-
-### Fix
-
-- **configuration.py**: enabled default settings file creation at first run
-
-## 1.0.1 (2023-10-01)
-
-### Fix
-
-- **main-and-tibber**: changed functions return types for mypy to pass
-
 ## 2.0.0 (2023-10-07)
 
 ### BREAKING CHANGE
@@ -27,6 +15,18 @@
 - **app**: add subscription status to frontend
 - **streamlit**: added power draw to status page
 - **streamlit**: add status page
+
+## 1.0.2 (2023-10-01)
+
+### Fix
+
+- **configuration.py**: enabled default settings file creation at first run
+
+## 1.0.1 (2023-10-01)
+
+### Fix
+
+- **main-and-tibber**: changed functions return types for mypy to pass
 
 ## 1.0.0 (2023-10-01)
 
