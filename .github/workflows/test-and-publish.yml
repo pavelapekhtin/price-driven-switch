@@ -12,7 +12,7 @@ jobs:
       is_main: ${{ steps.check-branch.outputs.is_main }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Check if tag is on main branch
       id: check-branch
       run: |
