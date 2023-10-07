@@ -6,38 +6,7 @@ on:
       - '*'
 
 jobs:
-  check-branch:
-    runs-on: ubuntu-latest
-    outputs:
-      is_main: ${{ steps.check-branch.outputs.is_main }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2  # Make sure you use the correct version
-      with:
-        fetch-depth: 0  # Important: fetch all history
-
-    - name: Fetch all tags
-      run: git fetch --tags --force
-
-    - name: Check if tag is on main branch
-      id: check-branch
-      run: |
-        echo "Tag Name: ${{ github.ref_name }}"
-        branch=$(git branch -r --contains tags/${{ github.ref_name }} | grep 'origin/main' || echo "")
-        echo "branch=$branch"
-        if [[ -z "$branch" ]]; then
-          echo "This tag was not pushed on main branch."
-          echo "is_main=false" >> $GITHUB_ENV
-          echo "::set-output name=is_main::false"
-        else
-          echo "This tag was pushed on main branch."
-          echo "is_main=true" >> $GITHUB_ENV
-          echo "::set-output name=is_main::true"
-        fi
-
   test:
-    needs: check-branch
-    if: needs.check-branch.outputs.is_main == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
