@@ -15,9 +15,7 @@ from price_driven_switch.backend.switch_logic import (
 )
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
-logger.add(
-    "logs/price_driven_switch.log", rotation="1 week", retention="7 days", level="DEBUG"
-)
+logger.add("logs/fast_api.log", rotation="1 week", retention="7 days", level="INFO")
 
 app = FastAPI()
 
@@ -66,6 +64,11 @@ async def switch_states():
         power_now=tibber_instance.power_reading,
     )
     return create_on_status_dict(power_and_price_switch_states)
+
+
+@app.get("/power_now")
+async def power_now():
+    return {"power_reading": tibber_instance.power_reading}
 
 
 if __name__ == "__main__":

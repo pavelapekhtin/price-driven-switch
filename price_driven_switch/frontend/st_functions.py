@@ -187,3 +187,15 @@ def get_setpoints_json() -> dict | str:
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
         return str(e)
+
+
+def get_power_reading() -> int | str:
+    url = "http://127.0.0.1:8080/power_now"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data: dict = response.json()
+        return data.get("power_reading", 0)
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return str(e)
