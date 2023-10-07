@@ -1,3 +1,13 @@
+## 2.1.0 (2023-10-07)
+
+### Feat
+
+- **docker**: added neovim and less to container for easy logs viewing etc
+
+### Fix
+
+- **tibber_connection**: pytibber logs intercept
+
 ## 2.0.1 (2023-10-07)
 
 ### Fix
