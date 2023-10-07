@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict
+from typing import Dict, Hashable
 
 import pandas as pd
 import uvicorn
@@ -35,7 +35,7 @@ async def price_only_switch_states():
 power_limit = lambda: settings()["Settings"]["MaxPower"]
 
 
-def create_on_status_dict(switches_df: pd.DataFrame) -> Dict[str, int]:
+def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, int]:
     on_status_dict = {}
     for appliance, row in switches_df.iterrows():
         on_status_dict[appliance] = 1 if row["on"] else 0
@@ -66,9 +66,12 @@ async def switch_states():
     return create_on_status_dict(power_and_price_switch_states)
 
 
-@app.get("/power_now")
-async def power_now():
-    return {"power_reading": tibber_instance.power_reading}
+@app.get("/subscription_info")
+async def subscription_info():
+    return {
+        "power_reading": tibber_instance.power_reading,
+        "subscription_status": tibber_instance.subscription_status,
+    }
 
 
 if __name__ == "__main__":

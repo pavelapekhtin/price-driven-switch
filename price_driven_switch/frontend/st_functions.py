@@ -178,7 +178,7 @@ def power_limit_input() -> None:
 
 
 def get_setpoints_json() -> dict | str:
-    url = "http://127.0.0.1:8080"
+    url = "http://172.18.0.1/api"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -190,12 +190,28 @@ def get_setpoints_json() -> dict | str:
 
 
 def get_power_reading() -> int | str:
-    url = "http://127.0.0.1:8080/power_now"
+    url = "http://172.18.0.1/api/subscription_info"
     try:
         response = requests.get(url)
         response.raise_for_status()
         data: dict = response.json()
         return data.get("power_reading", 0)
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return str(e)
+
+
+def get_subscription_status() -> str:
+    url = "http://172.18.0.1/api/subscription_info"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data: dict = response.json()
+        status = data.get("subscription_status", 0)
+        if status:
+            return "Active"
+        else:
+            return "Down"
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
         return str(e)

@@ -36,6 +36,7 @@ class TibberConnection:
     def __init__(self, api_token: str = TIBBER_TOKEN) -> None:
         self.api_token = api_token
         self.power_reading: int = 0
+        self.subscription_status: bool
 
     async def get_prices(self) -> dict:
         response = await self.connection.execute_async(
@@ -70,7 +71,7 @@ class TibberConnection:
         else:
             self.power_reading = 0
 
-    async def current_power_subscription(self, once: bool = False) -> int | None:
+    async def current_power_subscription(self, once: bool = False) -> int | None:  # type: ignore
         async with aiohttp.ClientSession() as session:
             tibber_connection = tibber.Tibber(
                 self.api_token, websession=session, user_agent="change_this"
@@ -80,6 +81,8 @@ class TibberConnection:
         home = tibber_connection.get_homes()[0]
         try:
             await home.rt_subscribe(callback=self.callback)
+            self.subscription_status = home.rt_subscription_running
+            logger.info(f"Subscription status: {home.rt_subscription_running}")
             if once:
                 await asyncio.sleep(10)  # Wait for the first callback
                 return self.power_reading
