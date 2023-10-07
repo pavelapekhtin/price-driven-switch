@@ -1,7 +1,9 @@
 import asyncio
+import logging
 import os
 
 import aiohttp
+import tibber
 import tibber.const
 from dotenv import load_dotenv
 from loguru import logger
@@ -30,6 +32,35 @@ PRICE_NO_TAX_QUERY = """
 
 load_dotenv("price_driven_switch/config/.env", verbose=True)
 TIBBER_TOKEN = str(os.environ.get("TIBBER_TOKEN"))
+
+logger.add(
+    "./logs/tibber_connection.log",
+    rotation="1 week",
+    retention="7 days",
+    level="WARNING",
+)
+
+
+# Intercept logs from 'tibber'.
+# Create a class to redirect standard logs to Loguru
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Get corresponding Loguru level if it exists
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Forward the message to Loguru
+        logger.opt(depth=6, exception=record.exc_info).log(level, record.getMessage())
+
+
+# Intercept standard logging messages toward Loguru
+logging.basicConfig(handlers=[InterceptHandler()], level=0)
+
+# Get tibber's logger and replace its handlers with the InterceptHandler
+tibber_logger = logging.getLogger("tibber")
+tibber_logger.handlers = [InterceptHandler()]
 
 
 class TibberConnection:
