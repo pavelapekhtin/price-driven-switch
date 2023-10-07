@@ -27,3 +27,12 @@ services:
 
 volumes:
   setpoint-config:
+
+
+networks:
+  custom_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.1/16
+          gateway: 172.18.0.1

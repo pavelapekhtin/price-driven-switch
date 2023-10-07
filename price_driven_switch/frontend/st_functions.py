@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 import pandas as pd
 import plotly.graph_objects as go  # type: ignore
+import requests
 import streamlit as st
 from loguru import logger
 
@@ -174,3 +175,43 @@ def power_limit_input() -> None:
     logger.debug(f"Max power session: {st.session_state.max_power_input}")
     if load_settings_file().get("Settings", {}).get("MaxPower") != max_power:
         save_settings(update_max_power(load_settings_file(), max_power))  # type: ignore
+
+
+def get_setpoints_json() -> dict | str:
+    url = "http://172.18.0.1/api"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data: dict = response.json()
+        return data
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return str(e)
+
+
+def get_power_reading() -> int | str:
+    url = "http://172.18.0.1/api/subscription_info"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data: dict = response.json()
+        return data.get("power_reading", 0)
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return str(e)
+
+
+def get_subscription_status() -> str:
+    url = "http://172.18.0.1/api/subscription_info"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data: dict = response.json()
+        status = data.get("subscription_status", 0)
+        if status:
+            return "Active"
+        else:
+            return "Down"
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return str(e)

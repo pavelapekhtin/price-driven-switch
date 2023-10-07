@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict
+from typing import Dict, Hashable
 
 import pandas as pd
 import uvicorn
@@ -15,9 +15,7 @@ from price_driven_switch.backend.switch_logic import (
 )
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
-logger.add(
-    "logs/price_driven_switch.log", rotation="1 week", retention="7 days", level="DEBUG"
-)
+logger.add("logs/fast_api.log", rotation="1 week", retention="7 days", level="INFO")
 
 app = FastAPI()
 
@@ -37,13 +35,10 @@ async def price_only_switch_states():
 power_limit = lambda: settings()["Settings"]["MaxPower"]
 
 
-def create_on_status_dict(switches_df: pd.DataFrame) -> Dict[str, int]:
-    on_status_dict: Dict[str, int] = {}
+def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, int]:
+    on_status_dict = {}
     for appliance, row in switches_df.iterrows():
-        if appliance is not None:
-            on_status_dict[str(appliance)] = (
-                1 if row["on"] else 0
-            )  # Casting to str just to be safe
+        on_status_dict[appliance] = 1 if row["on"] else 0
     return on_status_dict
 
 
@@ -69,6 +64,14 @@ async def switch_states():
         power_now=tibber_instance.power_reading,
     )
     return create_on_status_dict(power_and_price_switch_states)
+
+
+@app.get("/subscription_info")
+async def subscription_info():
+    return {
+        "power_reading": tibber_instance.power_reading,
+        "subscription_status": tibber_instance.subscription_status,
+    }
 
 
 if __name__ == "__main__":

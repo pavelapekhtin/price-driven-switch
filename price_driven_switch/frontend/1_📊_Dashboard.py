@@ -7,6 +7,7 @@ from price_driven_switch.backend.configuration import save_settings
 from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.prices import Prices
 from price_driven_switch.frontend.st_functions import (
+    api_token_input,
     generate_sliders,
     load_setpoints,
     load_settings_file,
@@ -19,7 +20,8 @@ st.sidebar.title("Price Based Controller", anchor="top")
 
 
 async def main():
-    await token_check_homepage()
+    if await token_check_homepage() is False:
+        await api_token_input()
 
     prices = Prices(await PriceFile().load_prices())
 

@@ -12,7 +12,11 @@ from price_driven_switch.backend.configuration import (
     save_settings,
 )
 from price_driven_switch.backend.switch_logic import load_appliances_df
-from price_driven_switch.frontend.st_functions import check_token, power_limit_input
+from price_driven_switch.frontend.st_functions import (
+    check_token,
+    get_setpoints_json,
+    power_limit_input,
+)
 
 load_dotenv()
 
