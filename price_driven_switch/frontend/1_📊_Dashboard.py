@@ -20,8 +20,12 @@ st.sidebar.title("Price Based Controller", anchor="top")
 
 
 async def main():
-    if await token_check_homepage() is False:
+    token_check = await token_check_homepage()
+
+    if not token_check:
         await api_token_input()
+        st.write("Enter the API token, hit Enter and refresh the page.")
+        st.stop()
 
     prices = Prices(await PriceFile().load_prices())
 
