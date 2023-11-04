@@ -50,7 +50,6 @@ def update_setpoints(
             original_dict["Appliances"][appliance_name]["Setpoint"] = new_setpoint
         else:
             original_dict["Appliances"][appliance_name] = {"Setpoint": new_setpoint}
-
     return original_dict
 
 
@@ -177,8 +176,15 @@ def power_limit_input() -> None:
         save_settings(update_max_power(load_settings_file(), max_power))  # type: ignore
 
 
+def fast_api_address() -> str:
+    if os.environ.get("RUNNING_IN_DOCKER"):
+        return "172.18.0.1/api"
+    else:
+        return "127.0.0.1:8080"
+
+
 def get_setpoints_json() -> dict | str:
-    url = "http://172.18.0.1/api"
+    url = f"http://{fast_api_address()}"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -190,7 +196,7 @@ def get_setpoints_json() -> dict | str:
 
 
 def get_power_reading() -> int | str:
-    url = "http://172.18.0.1/api/subscription_info"
+    url = f"http://{fast_api_address()}/subscription_info"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -202,7 +208,7 @@ def get_power_reading() -> int | str:
 
 
 def get_subscription_status() -> str:
-    url = "http://172.18.0.1/api/subscription_info"
+    url = f"http://{fast_api_address()}/subscription_info"
     try:
         response = requests.get(url)
         response.raise_for_status()

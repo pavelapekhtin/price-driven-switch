@@ -15,7 +15,13 @@ from price_driven_switch.backend.switch_logic import (
 )
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
-logger.add("logs/fast_api.log", rotation="1 week", retention="7 days", level="INFO")
+logger.add(
+    "logs/fast_api.log",
+    rotation="1 week",
+    retention="7 days",
+    level="INFO",
+    enqueue=False,
+)
 
 app = FastAPI()
 

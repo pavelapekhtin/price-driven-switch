@@ -37,7 +37,7 @@ logger.add(
     "./logs/tibber_connection.log",
     rotation="1 week",
     retention="7 days",
-    level="WARNING",
+    level="DEBUG",
 )
 
 
@@ -56,7 +56,7 @@ class InterceptHandler(logging.Handler):
 
 
 # Intercept standard logging messages toward Loguru
-logging.basicConfig(handlers=[InterceptHandler()], level=0)
+# logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
 # Get tibber's logger and replace its handlers with the InterceptHandler
 tibber_logger = logging.getLogger("tibber")
@@ -118,6 +118,7 @@ class TibberConnection:
                 await asyncio.sleep(10)  # Wait for the first callback
                 return self.power_reading
             while True:
+                logger.debug(f"Power reading: {self.power_reading}")
                 await asyncio.sleep(10)
         except asyncio.CancelledError:
             logger.info("Real-time subscription is being cancelled.")
