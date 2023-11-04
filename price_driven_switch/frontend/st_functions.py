@@ -81,7 +81,7 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:
         color = line_colors[i % len(line_colors)]  # Use modulo to avoid IndexError
 
         bar_color = [
-            color if bar_price <= price else "rgba(128, 128, 128, 0.3)"
+            color if bar_price < price else "rgba(128, 128, 128, 0.3)"
             for bar_price in prices_df["Prices"]
         ]
 

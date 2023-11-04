@@ -7,16 +7,15 @@ class Prices:
 
     @property
     def offset_now(self) -> float:
-        min_price = min(self.today_prices)
-        max_price = max(self.today_prices)
+        sorted_prices = sorted(self.today_prices)
 
-        # To prevent division by zero in case all prices are the same
-        if max_price == min_price:
-            return 0.5  # This assumes that if all prices are the same, the offset is in the middle. You can change this behavior if needed.
+        # Find the position of the current price within the sorted list
+        position = sorted_prices.index(self.price_now)
 
-        ratio = (self.price_now - min_price) / (max_price - min_price)
+        # Determine the offset based on the position
+        offset = position / 23
 
-        return ratio
+        return offset
 
     def get_price_at_offset_today(self, offset: float) -> float:
         return self.get_price_of_the_offset(self.today_prices, offset)
@@ -25,22 +24,19 @@ class Prices:
         return self.get_price_of_the_offset(self.tomo_prices, offset)
 
     def get_price_of_the_offset(self, prices: list[float], offset: float) -> float:
-        """Takes an offset value between 0 and 1, and returns the corresponding price from today_prices."""
-        if prices == []:
+        """Takes an offset value between 0 and 1, and returns the corresponding price."""
+        if not prices:
             return 0
 
         if offset < 0 or offset > 1:
             raise ValueError("Offset must be between 0 and 1.")
 
-        min_price = min(prices)
-        max_price = max(prices)
+        sorted_prices = sorted(prices)
 
-        # To prevent division by zero in case all prices are the same
-        if max_price == min_price:
-            return min_price  # This assumes that if all prices are the same, any offset corresponds to this single price. You can change this behavior if needed.
+        # Calculate the index corresponding to the given offset
+        index = int(round(offset * 23))
 
-        price_from_offset = min_price + (max_price - min_price) * offset
-        return price_from_offset
+        return sorted_prices[index]
 
     @property
     def price_now(self) -> float:
