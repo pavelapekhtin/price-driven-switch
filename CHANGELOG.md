@@ -1,3 +1,17 @@
+## 2.2.0 (2023-11-04)
+
+### Feat
+
+- **setpoints**: slider contrlols numberr of hours
+
+### Fix
+
+- **logging**: loguru deadlock error fixed
+
+### Refactor
+
+- **vscode**: removed linting settings from json
+
 ## 2.1.0 (2023-10-07)
 
 ### Feat

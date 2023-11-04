@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "price-driven-switch"
-version = "2.1.0"
+version = "2.2.0"
 description = "Provide on/off states via GET request based on power price from Tibber API"
 authors = ["pavelapekhtin <pavel.apekhtin@gmail.com>"]
 license = "MIT"
