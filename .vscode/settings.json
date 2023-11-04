@@ -9,8 +9,6 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
     },
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
     "python.analysis.typeCheckingMode": "basic",
     "vim.smartRelativeLine": true,
     "todo-tree.tree.scanMode": "workspace only",
