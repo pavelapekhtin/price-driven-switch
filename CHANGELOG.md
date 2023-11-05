@@ -1,3 +1,9 @@
+## 2.2.2 (2023-11-05)
+
+### Fix
+
+- **tibber_connection**: resubscribe if subscription is down fixed
+
 ## 2.2.1 (2023-11-04)
 
 ## 2.2.0 (2023-11-04)
