@@ -37,7 +37,7 @@ logger.add(
     "./logs/tibber_connection.log",
     rotation="1 week",
     retention="7 days",
-    level="DEBUG",
+    level="INFO",
 )
 
 
@@ -112,12 +112,16 @@ class TibberConnection:
         home = tibber_connection.get_homes()[0]
         try:
             await home.rt_subscribe(callback=self.callback)
-            self.subscription_status = home.rt_subscription_running
-            logger.info(f"Subscription status: {home.rt_subscription_running}")
             if once:
                 await asyncio.sleep(10)  # Wait for the first callback
                 return self.power_reading
             while True:
+                self.subscription_status = home.rt_subscription_running
+                if not self.subscription_status:
+                    logger.info("Subscription has ended, trying to resubscribe...")
+                    await home.rt_subscribe(callback=self.callback)
+
+                logger.debug(f"Subscription status: {home.rt_subscription_running}")
                 logger.debug(f"Power reading: {self.power_reading}")
                 await asyncio.sleep(10)
         except asyncio.CancelledError:

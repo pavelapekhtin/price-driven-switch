@@ -1,5 +1,7 @@
+import asyncio
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-import pytest_asyncio
 from python_graphql_client import GraphqlClient
 
 from price_driven_switch.backend.tibber_connection import TibberConnection
