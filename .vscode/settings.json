@@ -6,6 +6,7 @@
     "python.testing.pytestEnabled": true,
     "editor.formatOnSaveMode": "file",
     "editor.formatOnSave": true,
+    "editor.fontSize": 13,
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
     },

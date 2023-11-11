@@ -51,14 +51,19 @@ def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, in
 @app.on_event("startup")
 async def startup_event():
     global tibber_instance
-    tibber_instance = TibberConnection()
-    global task
-    task = asyncio.create_task(tibber_instance.current_power_subscription())
+    try:
+        tibber_instance = TibberConnection()
+        global task
+        task = asyncio.create_task(tibber_instance.subscribe_to_realtime_data())
+    except Exception as e:
+        logger.error(f"Failed to start Tibber real-time subscription: {e}")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     task.cancel()
+    await task  # Wait for the task to be cancelled
+    await tibber_instance.close()  # Gracefully close the Tibber connection
 
 
 @app.get("/")
