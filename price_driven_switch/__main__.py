@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Hashable
+from typing import Hashable
 
 import pandas as pd
 import uvicorn
@@ -25,7 +25,7 @@ logger.add(
 
 app = FastAPI()
 
-settings = lambda: load_settings_file("price_driven_switch/config/settings.toml")
+SETTINGS_PATH = "price_driven_switch/config/settings.toml"
 
 
 async def offset_now():
@@ -34,11 +34,11 @@ async def offset_now():
 
 async def price_only_switch_states():
     return set_price_only_based_states(
-        settings=settings(), offset_now=await offset_now()
+        settings=load_settings_file(SETTINGS_PATH), offset_now=await offset_now()
     )
 
 
-power_limit = lambda: settings()["Settings"]["MaxPower"]
+power_limit = lambda: load_settings_file(SETTINGS_PATH)["Settings"]["MaxPower"]
 
 
 def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, int]:
@@ -61,8 +61,6 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    task.cancel()
-    await task  # Wait for the task to be cancelled
     await tibber_instance.close()  # Gracefully close the Tibber connection
 
 

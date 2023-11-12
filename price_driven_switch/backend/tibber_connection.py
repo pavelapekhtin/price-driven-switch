@@ -1,10 +1,12 @@
 import os
+from typing import Optional
 
 import aiohttp
 import tibber
 from dotenv import load_dotenv
 from loguru import logger
 from python_graphql_client import GraphqlClient  # type: ignore
+from tibber.home import TibberHome
 
 TIBBER_API_ENDPOINT = "https://api.tibber.com/v1-beta/gql"
 
@@ -43,13 +45,16 @@ class TibberConnection:
         self.api_token = api_token
         self.power_reading: int = 0
         self.subscription_status: bool = False
-        self.tibber_connection = None
-        self.home = None
+        self.tibber_connection: Optional[tibber.Tibber] = None
+        self.home: Optional[TibberHome] = None
+        self.session: aiohttp.ClientSession = aiohttp.ClientSession()
 
     async def initialize_tibber(self) -> None:
-        async with aiohttp.ClientSession() as session:
+        if not self.tibber_connection:
             self.tibber_connection = tibber.Tibber(
-                self.api_token, websession=session, user_agent="price_driven_switch"
+                self.api_token,
+                websession=self.session,
+                user_agent="price_driven_switch",
             )
             await self.tibber_connection.update_info()
             self.home = self.tibber_connection.get_homes()[0]
@@ -60,7 +65,6 @@ class TibberConnection:
             self.power_reading = live_measurement.get("power")
             self.subscription_status = True
             logger.debug(f"Power reading: {self.power_reading}")
-            logger.debug(f"Subscription status: {self.subscription_status}")
         else:
             self.subscription_status = False
 
@@ -76,6 +80,8 @@ class TibberConnection:
         if self.tibber_connection:
             logger.debug("Disconnecting from Tibber realtime subscription")
             await self.tibber_connection.rt_disconnect()
+        await self.session.close()
+        logger.debug("Closed aiohttp session")
 
     async def get_prices(self) -> dict:
         response = await self.connection.execute_async(
