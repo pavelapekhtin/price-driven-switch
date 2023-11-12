@@ -1,3 +1,9 @@
+## 2.2.3 (2023-11-12)
+
+### Fix
+
+- **tibber_connection**: reworked resubscribe mechanism to handle disconnects better
+
 ## 2.2.2 (2023-11-05)
 
 ### Fix
