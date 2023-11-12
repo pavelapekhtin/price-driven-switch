@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from loguru import logger
 
 from price_driven_switch.__main__ import (
-    TibberConnection,
+    TibberRealtimeConnection,
     app,
     shutdown_event,
     startup_event,
@@ -37,15 +37,15 @@ async def test_switch_states(test_case, settings_dict_fixture, tibber_test_token
     await startup_event()
 
     try:
-        test_tibber_instance = TibberConnection(tibber_test_token)
+        test_tibber_instance = TibberRealtimeConnection(tibber_test_token)
         test_tibber_instance.power_reading = test_case["power_reading"]
         app.state.tibber_instance = test_tibber_instance
 
         with patch(
-            "price_driven_switch.__main__.TibberConnection",
+            "price_driven_switch.__main__.TibberRealtimeConnection",
             return_value=test_tibber_instance,
         ) as mock_tibber_main, patch(
-            "price_driven_switch.backend.tibber_connection.TibberConnection",
+            "price_driven_switch.backend.tibber_connection.TibberRealtimeConnection",
             return_value=test_tibber_instance,
         ) as mock_tibber_backend:
             await startup_event()

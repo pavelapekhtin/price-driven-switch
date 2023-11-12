@@ -13,7 +13,7 @@ from price_driven_switch.backend.switch_logic import (
     limit_power,
     set_price_only_based_states,
 )
-from price_driven_switch.backend.tibber_connection import TibberConnection
+from price_driven_switch.backend.tibber_connection import TibberRealtimeConnection
 
 logger.add(
     "logs/fast_api.log",
@@ -52,7 +52,7 @@ def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, in
 async def startup_event():
     global tibber_instance
     try:
-        tibber_instance = TibberConnection()
+        tibber_instance = TibberRealtimeConnection()
         global task
         task = asyncio.create_task(tibber_instance.subscribe_to_realtime_data())
     except Exception as e:
