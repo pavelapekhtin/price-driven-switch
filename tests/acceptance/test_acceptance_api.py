@@ -32,7 +32,7 @@ test_cases = [
 
 @pytest.mark.parametrize("test_case", test_cases)
 @pytest.mark.asyncio
-@pytest.mark.unit
+@pytest.mark.integration
 async def test_switch_states(test_case, settings_dict_fixture, tibber_test_token):
     await startup_event()
 

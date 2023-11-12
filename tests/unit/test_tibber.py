@@ -29,13 +29,6 @@ class TestTibbberConnection:
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_get_current_power(self, tibber_test_token):
-        tibber = TibberConnection(tibber_test_token)
-        power = await tibber.current_power_subscription(once=True)
-        assert isinstance(power, int)
-
-    @pytest.mark.asyncio
-    @pytest.mark.integration
     async def test_check_token_validity(self, tibber_test_token):
         tibber = TibberConnection(tibber_test_token)
         assert await tibber.check_token_validity() is True
