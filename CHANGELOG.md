@@ -1,3 +1,9 @@
+## 2.2.4 (2023-11-12)
+
+### Fix
+
+- **tibber**: separated realtime and and static API for frontend to work
+
 ## 2.2.3 (2023-11-12)
 
 ### Fix
