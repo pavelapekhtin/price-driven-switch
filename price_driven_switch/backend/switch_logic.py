@@ -28,7 +28,10 @@ def set_price_only_based_states(settings: dict, offset_now: float) -> pd.DataFra
 
 
 def limit_power(
-    switch_states: pd.DataFrame, power_limit: float, power_now: int
+    switch_states: pd.DataFrame,
+    power_limit: float,
+    power_now: int,
+    current_states_pwr_based: pd.DataFrame,
 ) -> pd.DataFrame:
     # Fallback to price only if power_now is 0 (i.e. failed to get current power)
     if power_now == 0:
@@ -41,15 +44,16 @@ def limit_power(
 
     power_now_kw = power_now / 1000.0
 
-    logger.info(f"Current power draw is {power_now_kw} kW")
-    logger.info(f"Power limit is {power_limit} kW")
+    # TODO: make log 1 line and with colors
+    logger.info(f"Power/Limit now: {power_now_kw} / {power_limit} kW")
+
     # Find the appliance with the highest priority (lowest 'Priority' value)
     highest_priority_appliance = switch_states.sort_values("Priority").iloc[0]
 
     # If power_limit is lower than the highest priority appliance, turn everything off
     if power_limit < highest_priority_appliance["Power"]:
         logger.info(
-            "Power limit is lower than the highest priority appliance, turning everything off"
+            "Power limit is lower than the highest priority appliance power, turning everything off"
         )
         switch_states["on"] = False
         return switch_states

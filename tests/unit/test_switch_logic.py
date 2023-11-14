@@ -32,14 +32,87 @@ def test_limit_power_specific_cases():
         "on": [True, True, True],
     }
 
+    # function to change the 'on' status in the DataFrame for present_on
+    def change_on_status(present_on: list[bool]):
+        initial_data["on"] = present_on
+        return initial_data
+
     test_cases = [
-        {"power_limit": 2, "power_now": 2100, "expected_on": [True, True, False]},
-        {"power_limit": 1, "power_now": 2100, "expected_on": [False, True, False]},
-        {"power_limit": 1.5, "power_now": 2501, "expected_on": [False, True, False]},
-        {"power_limit": 2, "power_now": 2800, "expected_on": [True, True, False]},
-        {"power_limit": 2, "power_now": 1900, "expected_on": [True, True, True]},
-        {"power_limit": 3, "power_now": 5300, "expected_on": [False, False, False]},
-        {"power_limit": 3, "power_now": 0, "expected_on": [True, True, True]},
+        # all was on cases
+        {
+            "power_limit": 2,
+            "power_now": 2100,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [True, True, False],
+        },
+        {
+            "power_limit": 1,
+            "power_now": 2100,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [False, True, False],
+        },
+        {
+            "power_limit": 1.5,
+            "power_now": 2501,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [False, True, False],
+        },
+        {
+            "power_limit": 2,
+            "power_now": 2800,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [True, True, False],
+        },
+        {
+            "power_limit": 2,
+            "power_now": 1900,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [True, True, True],
+        },
+        {
+            "power_limit": 3,
+            "power_now": 5300,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [False, False, False],
+        },
+        # power limit is 0 case
+        {
+            "power_limit": 3,
+            "power_now": 0,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [True, True, True],
+        },
+        # some was off cases
+        {
+            "power_limit": 3,
+            "power_now": 3200,
+            "present_on": change_on_status([True, True, False]),
+            "expected_on": [True, False, False],
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 3100,
+            "present_on": change_on_status([True, True, False]),
+            "expected_on": [True, True, True],
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 2000,
+            "present_on": change_on_status([True, False, False]),
+            "expected_on": [True, True, True],
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 2500,
+            "present_on": change_on_status([True, False, False]),
+            "expected_on": [True, True, False],
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 500,
+            "present_on": change_on_status([False, False, False]),
+            "expected_on": [True, True, True],
+        },
     ]
 
     for case in test_cases:
@@ -47,7 +120,9 @@ def test_limit_power_specific_cases():
         test_df = pd.DataFrame(initial_data)
 
         # Run the limit_power function with the specific power_limit and power_now values
-        result_df = limit_power(test_df, case["power_limit"], case["power_now"])
+        result_df = limit_power(
+            test_df, case["power_limit"], case["power_now"], case["present_on"]
+        )
 
         # Check if the 'on' status of each appliance matches the expected value
         assert list(result_df["on"]) == case["expected_on"]
