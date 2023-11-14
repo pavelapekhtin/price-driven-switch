@@ -27,6 +27,9 @@ app = FastAPI()
 
 SETTINGS_PATH = "price_driven_switch/config/settings.toml"
 
+# TODO: ensure its empty at startup and add logic int the power_limit to use power based then
+previous_switch_states: pd.DataFrame = pd.DataFrame()
+
 
 async def offset_now():
     return Prices(await PriceFile().load_prices()).offset_now
@@ -67,11 +70,14 @@ async def shutdown_event():
 @app.get("/")
 async def switch_states():
     switch_states_async = await price_only_switch_states()
+    global previous_switch_states
     power_and_price_switch_states = limit_power(
         switch_states=switch_states_async,
         power_limit=power_limit(),
+        current_states_pwr_based=previous_switch_states,
         power_now=tibber_instance.power_reading,
     )
+    previous_switch_states = power_and_price_switch_states
     return create_on_status_dict(power_and_price_switch_states)
 
 
