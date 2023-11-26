@@ -74,7 +74,7 @@ async def switch_states():
     power_and_price_switch_states = limit_power(
         switch_states=switch_states_async,
         power_limit=power_limit(),
-        current_states_pwr_based=previous_switch_states,
+        prev_states=previous_switch_states,
         power_now=tibber_instance.power_reading,
     )
     previous_switch_states = power_and_price_switch_states

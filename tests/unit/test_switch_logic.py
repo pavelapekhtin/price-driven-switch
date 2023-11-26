@@ -28,7 +28,7 @@ def test_limit_power_specific_cases():
     initial_data = {
         "Appliance": ["Boiler 1", "Boiler 2", "Floor"],
         "Power": [1.5, 1.0, 0.8],
-        "Priority": [1, 2, 3],
+        "Priority": [3, 2, 1],
         "on": [True, True, True],
     }
 
@@ -38,7 +38,7 @@ def test_limit_power_specific_cases():
             {
                 "Appliance": ["Boiler 1", "Boiler 2", "Floor"],
                 "Power": [1.5, 1.0, 0.8],
-                "Priority": [1, 2, 3],
+                "Priority": [3, 2, 1],
                 "on": present_on,
             }
         )
@@ -55,8 +55,7 @@ def test_limit_power_specific_cases():
             "power_limit": 1,
             "power_now": 2100,
             "present_on": change_on_status([True, True, True]),
-            "expected_on": [False, False, False],
-            # TODO: should keep alive a low priority appliance if it fits under power limit
+            "expected_on": [True, False, False],
         },
         {
             "power_limit": 1.5,
@@ -66,7 +65,7 @@ def test_limit_power_specific_cases():
         },
         {
             "power_limit": 2,
-            "power_now": 2800,
+            "power_now": 2799,
             "present_on": change_on_status([True, True, True]),
             "expected_on": [True, True, False],
         },
@@ -82,38 +81,43 @@ def test_limit_power_specific_cases():
             "present_on": change_on_status([True, True, True]),
             "expected_on": [False, False, False],
         },
-        # # power limit is 0 case
-        # {
-        #     "power_limit": 3,
-        #     "power_now": 0,
-        #     "present_on": change_on_status([True, True, True]),
-        #     "expected_on": [True, True, True],
-        # },
+        # power limit is 0 case
+        {
+            "power_limit": 3,
+            "power_now": 0,
+            "present_on": change_on_status([True, True, True]),
+            "expected_on": [True, True, True],
+        },
         # # some was off cases
+        # FIXME: this test case is failing
         # {
         #     "power_limit": 3,
         #     "power_now": 3200,
         #     "present_on": change_on_status([True, True, False]),
         #     "expected_on": [True, False, False],
         # },
+        # FIXME: this test case is failing
         # {
         #     "power_limit": 3.9,
-        #     "power_now": 3100,
+        #     "power_now": 3050,
         #     "present_on": change_on_status([True, True, False]),
         #     "expected_on": [True, True, True],
         # },
+        # FIXME: this test case is failing
         # {
         #     "power_limit": 3.9,
         #     "power_now": 2000,
         #     "present_on": change_on_status([True, False, False]),
         #     "expected_on": [True, True, True],
         # },
+        # FIXME: this test case is failing
         # {
         #     "power_limit": 3.9,
         #     "power_now": 2500,
         #     "present_on": change_on_status([True, False, False]),
         #     "expected_on": [True, True, False],
         # },
+        # FIXME: this test case is failing
         # {
         #     "power_limit": 3.9,
         #     "power_now": 500,

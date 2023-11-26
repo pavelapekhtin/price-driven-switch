@@ -1,4 +1,5 @@
 import pandas as pd
+from icecream import ic
 from loguru import logger
 
 
@@ -27,57 +28,56 @@ def set_price_only_based_states(settings: dict, offset_now: float) -> pd.DataFra
     return output
 
 
+def check_frames(df1: pd.DataFrame, df2: pd.DataFrame, ignore_column: str) -> bool:
+    # Selecting all columns except the one to ignore
+    df1_filtered = df1[df1.columns.difference([ignore_column])]
+    df2_filtered = df2[df2.columns.difference([ignore_column])]
+
+    # Comparing the filtered DataFrames
+    return df1_filtered.equals(df2_filtered)
+
+
 def limit_power(
     switch_states: pd.DataFrame,
     power_limit: float,
     power_now: int,
-    current_states_pwr_based: pd.DataFrame,
+    prev_states: pd.DataFrame,
 ) -> pd.DataFrame:
-    # Fallback to price only if power_now is 0 (i.e. failed to get current power)
-    if power_now == 0:
-        logger.warning("Failed to get current power, using price only logic")
-        return switch_states
+    switch_df = switch_states
+    prev_states_df = prev_states
 
-    if power_limit == 0:
-        logger.info("Power limit is set to 0, using only price logic")
-        return switch_states
+    # fallback case
+    if power_limit == 0 or power_now == 0:
+        logger.debug("Power limit or power now is 0, power logic disabled")
+        return switch_df
 
-    power_now_kw = power_now / 1000.0
+    # empty previous state case or wrong df shape
+    if prev_states_df.empty or check_frames(switch_df, prev_states_df, "on"):
+        logger.debug("Ignoring previous state, empty df or wrong shape")
 
-    # TODO: make log 1 line and with colors
-    logger.info(f"Power/Limit now: {power_now_kw} / {power_limit} kW")
+        # course of action
+        # 1. if previous state frame is same as switch states, reduce power
+        if switch_df.equals(prev_states_df):
+            if power_now < power_limit * 1000:
+                logger.debug("Power is below limit, no action required")
+                return switch_df
+            if power_now > power_limit * 1000:
+                total_power = power_now
 
-    # Find the appliance with the highest priority (lowest 'Priority' value)
-    highest_priority_appliance = switch_states.sort_values("Priority").iloc[0]
-
-    # If power_limit is lower than the highest priority appliance, turn everything off
-    if power_limit < highest_priority_appliance["Power"]:
-        logger.info(
-            "Power limit is lower than the highest priority appliance power, turning everything off"
-        )
-        switch_states["on"] = False
-        return switch_states
-
-    # If power_now is already below the limit, no need to turn off anything
-    if power_now_kw < power_limit:
-        logger.info("Power is already below limit, no need to turn off anything")
-        return switch_states
-
-    # Sort DataFrame by 'Priority' in descending order so that lower priorities are turned off first
-    sorted_states = switch_states.sort_values("Priority", ascending=False)
-
-    for index, row in sorted_states.iterrows():
-        if row["on"]:
-            new_power = power_now_kw - row["Power"]
-            if new_power < power_limit:
-                sorted_states.at[index, "on"] = False
-                logger.info(f"Turning off {index} to stay below power limit")
-                break
-            power_now_kw = new_power
-            sorted_states.at[index, "on"] = False
-            logger.info(f"Turning off {index} to stay below power limit")
-
-    # Update the original DataFrame to reflect these changes
-    switch_states.update(sorted_states)
-
-    return switch_states
+                logger.debug(
+                    f"Power is above limit, reducing power (over: {total_power - power_limit * 1000} kW)"
+                )
+                for priority in range(0, switch_df["Priority"].max() + 1):
+                    for index, row in switch_df.iterrows():
+                        if row["Priority"] == priority and row["on"] is True:
+                            total_power = total_power - row["Power"] * 1000
+                            switch_df.at[index, "on"] = False
+                            logger.debug(
+                                f"Turning off {row['Appliance']}, power {row['Power']} kW"
+                            )
+                            logger.debug(f"Estimated total power now {total_power} kW")
+                            if total_power < power_limit * 1000:
+                                break
+                    if total_power < power_limit * 1000:
+                        break
+                return switch_df
