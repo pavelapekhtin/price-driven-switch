@@ -96,34 +96,34 @@ def test_limit_power_specific_cases():
         #     "present_on": change_on_status([True, True, False]),
         #     "expected_on": [True, False, False],
         # },
-        # FIXME: this test case is failing
-        # {
-        #     "power_limit": 3.9,
-        #     "power_now": 3050,
-        #     "present_on": change_on_status([True, True, False]),
-        #     "expected_on": [True, True, True],
-        # },
-        # FIXME: this test case is failing
-        # {
-        #     "power_limit": 3.9,
-        #     "power_now": 2000,
-        #     "present_on": change_on_status([True, False, False]),
-        #     "expected_on": [True, True, True],
-        # },
-        # FIXME: this test case is failing
-        # {
-        #     "power_limit": 3.9,
-        #     "power_now": 2500,
-        #     "present_on": change_on_status([True, False, False]),
-        #     "expected_on": [True, True, False],
-        # },
-        # FIXME: this test case is failing
-        # {
-        #     "power_limit": 3.9,
-        #     "power_now": 500,
-        #     "present_on": change_on_status([False, False, False]),
-        #     "expected_on": [True, True, True],
-        # },
+        {
+            "power_limit": 3.9,
+            "power_now": 3050,
+            "present_on": change_on_status([True, True, False]),
+            "expected_on": [True, True, True],
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 2000,
+            "present_on": change_on_status([True, False, False]),
+            "expected_on": [True, True, True],
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 2500,
+            "present_on": change_on_status([True, False, False]),
+            "expected_on": [
+                True,
+                False,
+                True,
+            ],  # Turning on the floor as ther is reserve for it but not the boiler
+        },
+        {
+            "power_limit": 3.9,
+            "power_now": 500,
+            "present_on": change_on_status([False, False, False]),
+            "expected_on": [True, True, True],
+        },
     ]
 
     for case in test_cases:
