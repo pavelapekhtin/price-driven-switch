@@ -1,3 +1,17 @@
+## 3.0.0 (2023-11-26)
+
+### BREAKING CHANGE
+
+- Priority order in appliance list is now reversed. Higher number means higher appliance priority - update your existing settings
+
+### Feat
+
+- **limit_power**: added feedback loop to take the appliances that are already off into account
+
+### Refactor
+
+- **limit_power**: rewrote limit_power logic
+
 ## 2.2.4 (2023-11-12)
 
 ### Fix
