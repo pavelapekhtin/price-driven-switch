@@ -1,5 +1,4 @@
 import pandas as pd
-from icecream import ic
 from loguru import logger
 
 
@@ -51,68 +50,87 @@ def limit_power(
         logger.debug("Power limit or power now is 0, power logic disabled")
         return switch_df
 
-    # if previous state is same shape
-    # BUG: if previous state does not pass check frames, it should use this branch
-    if check_frames(switch_df, prev_states_df, "on"):
-        # Case of power limit exceeded and no previous state
-        if switch_df.equals(prev_states_df):
-            if power_now < power_limit * 1000:
-                logger.debug("Power is below limit, no action required")
-                return switch_df
-            if power_now > power_limit * 1000:
-                total_power = power_now
+    elif switch_df.equals(prev_states_df) or not check_frames(
+        switch_df, prev_states_df, "on"
+    ):
+        logger.debug("No previous state or previous state is the same as current state")
+        if power_now < power_limit * 1000:
+            logger.debug("Power is below limit, no action required")
+            return switch_df
+        if power_now > power_limit * 1000:
+            total_power = power_now
 
-                logger.debug(
-                    f"Power is above limit, reducing power (over: {total_power - power_limit * 1000} kW)"
-                )
-                for priority in range(0, switch_df["Priority"].max() + 1):
-                    for index, row in switch_df.iterrows():
-                        if row["Priority"] == priority and row["on"] == True:
-                            total_power = total_power - row["Power"] * 1000
-                            switch_df.at[index, "on"] = False
+            logger.debug(
+                f"Power is above limit, reducing power (over: {total_power - power_limit * 1000} kW)"
+            )
+            for priority in range(0, switch_df["Priority"].max() + 1):
+                for index, row in switch_df.iterrows():
+                    if row["Priority"] == priority and row["on"] is True:
+                        total_power = total_power - row["Power"] * 1000
+                        switch_df.at[index, "on"] = False
+                        logger.debug(
+                            f"Turning off {row.index}, power {row['Power']} kW"
+                        )
+                        logger.debug(f"Estimated total power now {total_power} kW")
+                        if total_power < power_limit * 1000:
+                            break
+                if total_power < power_limit * 1000:
+                    break
+            return switch_df
+
+    # case of valid pervious state persent
+    elif check_frames(switch_df, prev_states_df, "on") and not switch_df.equals(
+        prev_states_df
+    ):
+        logger.debug("There is a previous state, using it")
+        if power_now < power_limit * 1000:
+            power_reserve = power_limit * 1000 - power_now
+            logger.debug(
+                f"Power reserve {power_reserve} , chekcing if something can be turned on"
+            )
+            for priority in range(0, prev_states_df["Priority"].max() + 1):
+                for index, row in prev_states_df.iterrows():
+                    # check if appliance was on in swtich_df but is off in prev_states_df
+                    if (
+                        row["Priority"] == priority
+                        and row["on"] is False
+                        and row["on"] != switch_df.at[index, "on"]
+                    ):
+                        total_power = power_now + row["Power"] * 1000
+                        if (
+                            total_power < power_limit * 1000
+                            and switch_df.at[index, "Power"] < power_reserve / 1000
+                        ):
+                            prev_states_df.at[index, "on"] = True
+                            power_reserve = power_reserve - row["Power"] * 1000
                             logger.debug(
-                                f"Turning off {row['Appliance']}, power {row['Power']} kW"
+                                f"Turning on {row.index}, power {row['Power']} kW"
                             )
                             logger.debug(f"Estimated total power now {total_power} kW")
-                            if total_power < power_limit * 1000:
-                                break
-                    if total_power < power_limit * 1000:
-                        break
-                return switch_df
+                            logger.debug(f"Power reserve now {power_reserve} kW")
+            logger.debug("No more appliances can be turned on")
+            return prev_states_df
 
-        # case of valid pervious state persent
-        elif check_frames(switch_df, prev_states_df, "on") and not switch_df.equals(
-            prev_states_df
-        ):
-            logger.debug("There is a previous state, using it")
-            if power_now < power_limit * 1000:
-                power_reserve = power_limit * 1000 - power_now
-                logger.debug(
-                    f"Power reserve {power_reserve} , chekcing if something can be turned on"
-                )
-                for priority in range(0, prev_states_df["Priority"].max() + 1):
-                    for index, row in prev_states_df.iterrows():
-                        # check if appliance was on in swtich_df but is off in prev_states_df
-                        if (
-                            row["Priority"] == priority
-                            and row["on"] == False
-                            and row["on"] != switch_df.at[index, "on"]
-                        ):
-                            total_power = power_now + row["Power"] * 1000
-                            if (
-                                total_power < power_limit * 1000
-                                and switch_df.at[index, "Power"] < power_reserve / 1000
-                            ):
-                                prev_states_df.at[index, "on"] = True
-                                power_reserve = power_reserve - row["Power"] * 1000
-                                logger.debug(
-                                    f"Turning on {row['Appliance']}, power {row['Power']} kW"
-                                )
-                                logger.debug(
-                                    f"Estimated total power now {total_power} kW"
-                                )
-                                logger.debug(f"Power reserve now {power_reserve} kW")
-                logger.debug("No more appliances can be turned on")
-                return prev_states_df
+        else:
+            total_power = power_now
 
-    ic("nothing triggered")
+            logger.debug(
+                f"Power is above limit, reducing power (over: {total_power - power_limit * 1000} kW)"
+            )
+            for priority in range(0, switch_df["Priority"].max() + 1):
+                for index, row in prev_states_df.iterrows():
+                    if row["Priority"] == priority and row["on"] is True:
+                        total_power = total_power - row["Power"] * 1000
+                        prev_states_df.at[index, "on"] = False
+                        logger.debug(
+                            f"Turning off {row.index}, power {row['Power']} kW"
+                        )
+                        logger.debug(f"Estimated total power now {total_power} kW")
+                        if total_power < power_limit * 1000:
+                            break
+                if total_power < power_limit * 1000:
+                    break
+            return prev_states_df
+
+    logger.error("Code on wrong path, should not be here")
+    return switch_df

@@ -88,14 +88,15 @@ def test_limit_power_specific_cases():
             "present_on": change_on_status([True, True, True]),
             "expected_on": [True, True, True],
         },
-        # # some was off cases
-        # FIXME: this test case is failing
-        # {
-        #     "power_limit": 3,
-        #     "power_now": 3200,
-        #     "present_on": change_on_status([True, True, False]),
-        #     "expected_on": [True, False, False],
-        # },
+        # PREVIOUS STATE PRESENT CASES
+        # POWER LIMIT EXCEEDED
+        {
+            "power_limit": 3,
+            "power_now": 3200,
+            "present_on": change_on_status([True, True, False]),
+            "expected_on": [True, False, False],
+        },
+        # POWER RESERVE PRESNT CASES
         {
             "power_limit": 3.9,
             "power_now": 3050,

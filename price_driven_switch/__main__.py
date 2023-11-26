@@ -28,7 +28,14 @@ app = FastAPI()
 SETTINGS_PATH = "price_driven_switch/config/settings.toml"
 
 # TODO: ensure its empty at startup and add logic int the power_limit to use power based then
-previous_switch_states: pd.DataFrame = pd.DataFrame()
+previous_switch_states: pd.DataFrame = pd.DataFrame(
+    {
+        "Appliance": [],
+        "Power": [],
+        "Priority": [],
+        "on": [],
+    }
+)
 
 
 async def offset_now():
@@ -77,6 +84,7 @@ async def switch_states():
         prev_states=previous_switch_states,
         power_now=tibber_instance.power_reading,
     )
+    logger.debug(f"Switch states: {power_and_price_switch_states}")
     previous_switch_states = power_and_price_switch_states
     return create_on_status_dict(power_and_price_switch_states)
 

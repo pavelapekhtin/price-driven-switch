@@ -1,17 +1,17 @@
 [Appliances."Boiler 1"]
-Setpoint = 0.5
+Setpoint = 1
 Power = 1.5
-Priority = 2
+Priority = 3
 
 [Appliances."Boiler 2"]
-Setpoint = 0.5
+Setpoint = 1
 Power = 1.0
-Priority = 1
+Priority = 2
 
 [Appliances."Floor"]
-Setpoint = 0.5
+Setpoint = 1
 Power = 0.8
-Priority = 3
+Priority = 1
 
 [Settings]
 MaxPower = 1.0
