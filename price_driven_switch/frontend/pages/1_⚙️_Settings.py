@@ -1,7 +1,6 @@
 import asyncio
 import os
 
-import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from loguru import logger
@@ -12,17 +11,13 @@ from price_driven_switch.backend.configuration import (
     save_settings,
 )
 from price_driven_switch.backend.switch_logic import load_appliances_df
-from price_driven_switch.frontend.st_functions import (
-    check_token,
-    get_setpoints_json,
-    power_limit_input,
-)
+from price_driven_switch.frontend.st_functions import check_token, power_limit_input
 
 load_dotenv()
 
 
 if "api_token" not in st.session_state:
-    st.session_state.api_token = os.environ.get("TIBBER_TOKEN", "")
+    st.session_state["api_token"] = os.environ.get("TIBBER_TOKEN", "")
 
 if "max_power_input" not in st.session_state:
     st.session_state["max_power_input"] = (

@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 import pandas as pd
 import streamlit as st
@@ -8,25 +9,40 @@ from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.prices import Prices
 from price_driven_switch.frontend.st_functions import (
     api_token_input,
+    check_token,
     generate_sliders,
     load_setpoints,
     load_settings_file,
     plot_prices,
+    save_api_key,
     token_check_homepage,
     update_setpoints,
 )
 
 st.sidebar.title("Price Based Controller", anchor="top")
 
+if "api_token" not in st.session_state:
+    st.session_state["api_token"] = os.environ.get("TIBBER_TOKEN", "")
 
-async def main():
+
+async def check():
     token_check = await token_check_homepage()
 
-    if not token_check:
-        await api_token_input()
-        st.write("Enter the API token, hit Enter and refresh the page.")
-        st.stop()
+    while not token_check:
+        with st.container():
+            # Show API Token text input and link it to session_state.api_token
+            st.session_state.api_token = st.text_input(
+                "Tibber API Token", st.session_state.api_token
+            )
 
+            await check_token(st.session_state.api_token)
+            # Save API key
+            save_api_key(st.session_state.api_token)  # type: ignore
+
+            st.stop()
+
+
+async def main():
     prices = Prices(await PriceFile().load_prices())
 
     # SETPOINT SLIDERS ================
@@ -85,4 +101,5 @@ async def main():
 
 
 if __name__ == "__main__":
+    asyncio.run(check())
     asyncio.run(main())
