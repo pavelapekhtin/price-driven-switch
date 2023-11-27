@@ -25,6 +25,12 @@ if "max_power_input" not in st.session_state:
     )
 
 
+if "appliances_editor" not in st.session_state:
+    st.session_state["appliances_editor"] = load_appliances_df(
+        load_settings_file()
+    ).copy()[["Setpoint", "Power", "Priority"]]
+
+
 def main():
     with st.container():
         # Show API Token text input and link it to session_state.api_token
@@ -42,15 +48,11 @@ def main():
 
     original_settings = load_settings_file().copy()
 
-    appliances = load_appliances_df(original_settings).copy()[
-        ["Setpoint", "Power", "Priority"]
-    ]
-
     st.text(" ")
     st.subheader("Appliances")
 
     appliance_editor_frame = st.data_editor(
-        appliances,
+        st.session_state.appliances_editor,
         hide_index=False,
         num_rows="dynamic",
         use_container_width=True,
@@ -71,22 +73,17 @@ def main():
         },
     )
 
-    if "appliances_editor" not in st.session_state:
-        st.session_state["appliances_editor"] = appliances
-
     if "save_state" not in st.session_state:
         st.session_state["save_state"] = False
 
     edited_appliances_dict = appliance_editor_frame.to_dict(orient="index")
 
-    if original_settings["Appliances"] != edited_appliances_dict:
-        if st.button("Save Changes", key="save_changes"):
-            new_settings = original_settings.copy()
-            new_settings["Appliances"] = edited_appliances_dict
+    new_settings = original_settings.copy()
+    new_settings["Appliances"] = edited_appliances_dict
 
-            logger.debug(f"Updated settings: {new_settings}")
-            # Save the updated settings
-            save_settings(new_settings)
+    logger.debug(f"Updated settings: {new_settings}")
+    # Save the updated settings
+    save_settings(new_settings)
 
     power_limit_input()
 
