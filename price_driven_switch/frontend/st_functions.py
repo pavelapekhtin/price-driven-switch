@@ -168,7 +168,6 @@ def power_limit_input() -> None:
         key="max_power_input",
         min_value=0.0,
         step=1.0,
-        value=st.session_state.max_power_input,
     )
     logger.debug(f"Max power input: {max_power}")
     logger.debug(f"Max power session: {st.session_state.max_power_input}")
