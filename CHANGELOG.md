@@ -1,3 +1,15 @@
+## 3.0.1 (2023-11-27)
+
+### Fix
+
+- **frontend**: removed max_power warning from settings page at first run
+- **token-input**: container restart after toke input no loger required
+
+### Perf
+
+- **frontend**: editing appliances tabele does not require save button
+- **frontend**: sliders do not require a save button anymore
+
 ## 3.0.0 (2023-11-26)
 
 ### BREAKING CHANGE
