@@ -3,11 +3,11 @@
 ### Fix
 
 - **frontend**: removed max_power warning from settings page at first run
-- **token-input**: container restart after toke input no loger required
+- **token-input**: container restart after token input no loger required
 
 ### Perf
 
-- **frontend**: editing appliances tabele does not require save button
+- **frontend**: editing appliances table does not require save button
 - **frontend**: sliders do not require a save button anymore
 
 ## 3.0.0 (2023-11-26)
@@ -28,7 +28,7 @@
 
 ### Fix
 
-- **tibber**: separated realtime and and static API for frontend to work
+- **tibber**: separated realtime and static API for frontend to work
 
 ## 2.2.3 (2023-11-12)
 
@@ -41,8 +41,6 @@
 ### Fix
 
 - **tibber_connection**: resubscribe if subscription is down fixed
-
-## 2.2.1 (2023-11-04)
 
 ## 2.2.0 (2023-11-04)
 
@@ -78,7 +76,7 @@
 
 ### BREAKING CHANGE
 
-- Since streamlit now performs calls to FastAPI on 172.18.0.1 to get Tibber status, a network should be added to docker-compose.yml to reserve this address ffor cross-container communication. Update your local docker-compose file with the code fromt the file in the repository.
+- Since streamlit now performs calls to FastAPI on 172.18.0.1 to get Tibber status, a network should be added to docker-compose.yml to reserve this address ffor cross-container communication. Update your local docker-compose file with the code from the file in the repository.
 
 ### Feat
 

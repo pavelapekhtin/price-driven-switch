@@ -73,7 +73,7 @@ Use this json to control your appliances via home automation software like Home 
 - [ ] Add currency selection to settings page.
 - [ ] Add timezone selection to settings page.
 - [ ] Fix cutoff line colors behaviour.
-- [ ] Rework setpoints and appliances value saving.
+- [x] Rework setpoints and appliances value saving.
 
 ## Future plans
 
