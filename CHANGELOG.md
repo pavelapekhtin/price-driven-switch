@@ -1,3 +1,14 @@
+## 3.1.1 (2023-11-28)
+
+### Fix
+
+- **frontend**: fixed no changes saving after switching page
+
+### Refactor
+
+- **frontend**: log display improvements
+- **logs**: more visible status codes
+
 ## 3.1.0 (2023-11-28)
 
 ### Feat
