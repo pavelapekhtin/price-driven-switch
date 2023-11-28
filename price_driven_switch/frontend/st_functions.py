@@ -194,6 +194,18 @@ def get_setpoints_json() -> dict | str:
         return str(e)
 
 
+def get_prev_setpoints_json() -> dict | str:
+    url = f"http://{fast_api_address()}/previous_setpoints"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data: dict = response.json()
+        return data
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return str(e)
+
+
 def get_power_reading() -> int | str:
     url = f"http://{fast_api_address()}/subscription_info"
     try:

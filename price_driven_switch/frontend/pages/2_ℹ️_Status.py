@@ -1,8 +1,11 @@
+from typing import Any
+
 import streamlit as st
 
 from price_driven_switch.backend.configuration import load_settings_file
 from price_driven_switch.frontend.st_functions import (
     get_power_reading,
+    get_prev_setpoints_json,
     get_setpoints_json,
     get_subscription_status,
 )
@@ -47,5 +50,56 @@ else:
 
 st.divider()
 
-st.write("Current Setpoints JSON:")
-st.json(get_setpoints_json())
+col1, col2 = st.columns(2)
+with col1:
+    st.write("Current Setpoints JSON:")
+    st.json(get_setpoints_json())
+with col2:
+    st.write("Price only Setpoints JSON:")
+    st.json(get_prev_setpoints_json())
+
+st.divider()
+
+
+# display logs
+
+# Number input for specifying the number of lines to display
+log_lines = st.number_input(
+    "Number of lines to display",
+    key="log_lines_input",
+    min_value=5,
+    max_value=1000,
+    step=50,
+    value=5,
+)
+
+# Dropdown menu for selecting log level
+log_level = st.selectbox(
+    "Select log level",
+    ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+    index=4,  # Default to CRITICAL
+)
+
+
+# Function to filter log lines based on log level
+def read_filtered_logs(file_path: str, lines_count: Any, level: Any) -> str:
+    level_order = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    min_level = level_order.index(level)
+    filtered_lines = []
+
+    with open(file_path, "r") as file:
+        for line in file:
+            if any(level in line for level in level_order[min_level:]):
+                filtered_lines.append(line)
+
+    return "".join(filtered_lines[-lines_count:])
+
+
+# File path for the log file
+log_file_path = "logs/tibber_connection.log"
+
+# Read and filter log content
+log_content = read_filtered_logs(log_file_path, log_lines, log_level)
+
+# Display the filtered log content
+st.text_area("Log File Content", log_content, height=300)
