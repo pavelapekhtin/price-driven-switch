@@ -58,13 +58,13 @@ def limit_power(
         logger.debug("No previous state or previous state is the same as current state")
         if power_now < power_limit * 1000:
             logger.info(
-                f"OK power below limit {power_now} W < {power_limit * 1000} W, no action"
+                f"[OK] power below limit {power_now} W < {power_limit * 1000} W, no action"
             )
             return switch_df
         if power_now > power_limit * 1000:
             total_power = power_now
 
-            logger.info(f"OVER: {power_now - power_limit * 1000} W , reducing power.")
+            logger.info(f"[OVER] {power_now - power_limit * 1000} W , reducing power.")
             for priority in range(0, switch_df["Priority"].max() + 1):
                 for index, row in switch_df.iterrows():
                     if row["Priority"] == priority and row["on"] is True:
@@ -86,7 +86,7 @@ def limit_power(
         if power_now < power_limit * 1000:
             power_reserve = power_limit * 1000 - power_now
             logger.info(
-                f"RESERVE {power_reserve} W, checking if any appliances can be turned on"
+                f"[RESERVE] {power_reserve} W, checking if any appliances can be turned on"
             )
             for priority in range(0, prev_states_df["Priority"].max() + 1):
                 for index, row in prev_states_df.iterrows():
@@ -114,7 +114,7 @@ def limit_power(
         else:
             total_power = power_now
 
-            logger.info(f"OVER: {total_power - power_limit * 1000} W)")
+            logger.info(f"[OVER] {total_power - power_limit * 1000} W)")
             logger.info(f"Previous state: {prev_states_df['on'].to_list()}")
             for priority in range(0, switch_df["Priority"].max() + 1):
                 for index, row in prev_states_df.iterrows():
