@@ -1,3 +1,11 @@
+## 3.1.0 (2023-11-28)
+
+### Feat
+
+- **backend**: added more user friendly logs
+- **frontend**: previous setpoints and log display on the status page
+- **backend**: previous setpoints api route added
+
 ## 3.0.1 (2023-11-27)
 
 ### Fix
