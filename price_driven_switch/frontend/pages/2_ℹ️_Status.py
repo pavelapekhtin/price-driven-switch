@@ -50,6 +50,7 @@ else:
 
 st.divider()
 
+
 col1, col2 = st.columns(2)
 with col1:
     st.write("Current Setpoints JSON:")
@@ -62,15 +63,16 @@ st.divider()
 
 
 # display logs
+st.subheader("Logs")
 
 # Number input for specifying the number of lines to display
 log_lines = st.number_input(
     "Number of lines to display",
     key="log_lines_input",
-    min_value=10,
+    min_value=12,
     max_value=3000,
     step=50,
-    value=10,
+    value=12,
 )
 
 # Dropdown menu for selecting log level
@@ -102,4 +104,4 @@ log_file_path = "logs/fast_api.log"
 log_content = read_filtered_logs(log_file_path, log_lines, log_level)
 
 # Display the filtered log content
-st.text_area("Log File Content", log_content, height=300)
+st.text_area(log_file_path, log_content, height=300)

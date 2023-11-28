@@ -19,7 +19,7 @@ logger.add(
     "logs/fast_api.log",
     rotation="1 week",
     retention="7 days",
-    level="INFO",
+    level="DEBUG",
     enqueue=False,
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
 )
@@ -85,7 +85,6 @@ async def switch_states():
         prev_states=previous_switch_states,
         power_now=tibber_instance.power_reading,
     )
-    logger.debug(f"Switch states: {power_and_price_switch_states}")
     previous_switch_states = power_and_price_switch_states
     return create_on_status_dict(power_and_price_switch_states)
 
