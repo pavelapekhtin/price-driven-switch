@@ -13,6 +13,7 @@ from price_driven_switch.backend.configuration import (
     save_settings,
     update_max_power,
 )
+from price_driven_switch.backend.switch_logic import load_appliances_df
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
@@ -146,6 +147,9 @@ async def token_check_homepage() -> bool:
         return False
 
 
+# Settings page
+
+
 async def api_token_input() -> None:
     with st.container():  # Use a container to encapsulate widgets and avoid key conflicts.
         if os.environ.get("TIBBER_TOKEN"):
@@ -160,6 +164,54 @@ async def api_token_input() -> None:
             token = st.text_input("Tibber API Token")
             await check_token(token)
             save_api_key(token)
+
+
+def change_df_state(df: pd.DataFrame) -> None:
+    st.session_state["appliance_editor"] = df
+
+
+def save_appliances(df: pd.DataFrame) -> None:
+    edited_appliances_dict = df.to_dict(orient="index")
+
+    new_settings = load_settings_file().copy()
+    new_settings["Appliances"] = edited_appliances_dict
+
+    logger.debug(f"Updated settings: {new_settings}")
+    # Save the updated settings
+    save_settings(new_settings)
+
+
+def appliances_editor() -> None:
+    initial_df = load_appliances_df(load_settings_file()).copy()
+
+    if "appliance_editor" not in st.session_state:
+        st.session_state["appliance_editor"] = initial_df
+    appliances_editor_frame = st.session_state["appliance_editor"]
+    appliances_editor_frame = st.data_editor(
+        appliances_editor_frame,
+        hide_index=False,
+        num_rows="dynamic",
+        use_container_width=True,
+        on_change=change_df_state,
+        args=(appliances_editor_frame,),
+        column_config={
+            "Setpoint": st.column_config.NumberColumn(
+                required=True, min_value=0, max_value=1, step=0.01, default=0.5
+            ),
+            "Power": st.column_config.NumberColumn(
+                required=True, min_value=1, step=0.01, default=1
+            ),
+            "Priority": st.column_config.NumberColumn(
+                required=True,
+                min_value=1,
+                step=1,
+                default=1,
+            ),
+        },
+    )
+    st.session_state["appliance_editor"] = appliances_editor_frame
+
+    save_appliances(appliances_editor_frame)
 
 
 def power_limit_input() -> None:

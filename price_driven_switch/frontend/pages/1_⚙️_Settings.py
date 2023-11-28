@@ -5,13 +5,13 @@ import streamlit as st
 from dotenv import load_dotenv
 from loguru import logger
 
-from price_driven_switch.backend.configuration import (
-    load_settings_file,
-    save_api_key,
-    save_settings,
-)
+from price_driven_switch.backend.configuration import load_settings_file, save_api_key
 from price_driven_switch.backend.switch_logic import load_appliances_df
-from price_driven_switch.frontend.st_functions import check_token, power_limit_input
+from price_driven_switch.frontend.st_functions import (
+    appliances_editor,
+    check_token,
+    power_limit_input,
+)
 
 load_dotenv()
 
@@ -25,10 +25,10 @@ if "max_power_input" not in st.session_state:
     )
 
 
-if "appliances_editor" not in st.session_state:
-    st.session_state["appliances_editor"] = load_appliances_df(
-        load_settings_file()
-    ).copy()[["Setpoint", "Power", "Priority"]]
+# if "appliances_editor" not in st.session_state:
+#     st.session_state["appliances_editor"] = load_appliances_df(
+#         load_settings_file()
+#     ).copy()[["Setpoint", "Power", "Priority"]]
 
 
 def main():
@@ -51,39 +51,7 @@ def main():
     st.text(" ")
     st.subheader("Appliances")
 
-    appliance_editor_frame = st.data_editor(
-        st.session_state.appliances_editor,
-        hide_index=False,
-        num_rows="dynamic",
-        use_container_width=True,
-        key="appliance_editor",
-        column_config={
-            "Setpoint": st.column_config.NumberColumn(
-                required=True, min_value=0, max_value=1, step=0.01, default=0.5
-            ),
-            "Power": st.column_config.NumberColumn(
-                required=True, min_value=1, step=0.01, default=1
-            ),
-            "Priority": st.column_config.NumberColumn(
-                required=True,
-                min_value=1,
-                step=1,
-                default=1,
-            ),
-        },
-    )
-
-    if "save_state" not in st.session_state:
-        st.session_state["save_state"] = False
-
-    edited_appliances_dict = appliance_editor_frame.to_dict(orient="index")
-
-    new_settings = original_settings.copy()
-    new_settings["Appliances"] = edited_appliances_dict
-
-    logger.debug(f"Updated settings: {new_settings}")
-    # Save the updated settings
-    save_settings(new_settings)
+    appliances_editor()
 
     power_limit_input()
 

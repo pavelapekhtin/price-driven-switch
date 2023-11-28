@@ -57,6 +57,8 @@ async def main():
 
     slider_values = generate_sliders(st.session_state.slider_values)
 
+    st.session_state.slider_values = slider_values
+
     new_settings = original_settings.copy()
     new_settings = update_setpoints(
         new_settings, slider_values
