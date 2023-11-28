@@ -67,17 +67,17 @@ st.divider()
 log_lines = st.number_input(
     "Number of lines to display",
     key="log_lines_input",
-    min_value=5,
-    max_value=1000,
+    min_value=10,
+    max_value=3000,
     step=50,
-    value=5,
+    value=10,
 )
 
 # Dropdown menu for selecting log level
 log_level = st.selectbox(
     "Select log level",
     ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    index=4,  # Default to CRITICAL
+    index=1,  # Default to CRITICAL
 )
 
 
@@ -96,7 +96,7 @@ def read_filtered_logs(file_path: str, lines_count: Any, level: Any) -> str:
 
 
 # File path for the log file
-log_file_path = "logs/tibber_connection.log"
+log_file_path = "logs/fast_api.log"
 
 # Read and filter log content
 log_content = read_filtered_logs(log_file_path, log_lines, log_level)

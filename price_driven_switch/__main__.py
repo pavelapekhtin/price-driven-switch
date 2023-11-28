@@ -21,6 +21,7 @@ logger.add(
     retention="7 days",
     level="INFO",
     enqueue=False,
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
 )
 
 app = FastAPI()
