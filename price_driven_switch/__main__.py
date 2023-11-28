@@ -97,5 +97,10 @@ async def subscription_info():
     }
 
 
+@app.get("/previous_setpoints")
+async def previous_setpoints():
+    return create_on_status_dict(await price_only_switch_states())
+
+
 if __name__ == "__main__":
     uvicorn.run("__main__:app", port=8080)
