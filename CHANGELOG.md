@@ -1,3 +1,9 @@
+## 3.1.2 (2023-11-30)
+
+### Fix
+
+- **power_limit**: fixed staying on despite the price in some cases
+
 ## 3.1.1 (2023-11-28)
 
 ### Fix
