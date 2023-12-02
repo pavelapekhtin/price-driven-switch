@@ -29,12 +29,21 @@ def load_setpoints() -> Dict[str, float]:
     return extract_setpoints(load_settings_file())
 
 
+def change_slider_state(values: Dict[str, float]) -> None:
+    st.session_state.slider_values = values
+
+
 def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
     new_dict: Dict[str, float] = values.copy()
     for key, value in new_dict.items():
         slider_value: int = int(value * 24)
         new_value: int = st.slider(
-            label=key, min_value=0, max_value=24, value=slider_value
+            label=key,
+            min_value=0,
+            max_value=24,
+            value=slider_value,
+            on_change=change_slider_state,
+            args=(st.session_state.slider_values,),
         )
         new_dict[key] = new_value / 24.0
     return new_dict
@@ -52,6 +61,18 @@ def update_setpoints(
         else:
             original_dict["Appliances"][appliance_name] = {"Setpoint": new_setpoint}
     return original_dict
+
+
+def price_sliders() -> None:
+    original_settings = (
+        load_settings_file().copy()
+    )  # Assuming load_settings_file is your function to load all settings.
+
+    slider_values = generate_sliders(load_setpoints())
+
+    new_settings = update_setpoints(original_settings, slider_values)
+
+    save_settings(new_settings)
 
 
 def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:

@@ -57,15 +57,14 @@ async def main():
 
     slider_values = generate_sliders(st.session_state.slider_values)
 
-    st.session_state.slider_values = slider_values
-
-    new_settings = original_settings.copy()
     new_settings = update_setpoints(
-        new_settings, slider_values
+        original_settings, slider_values
     )  # Assume update_setpoints is imported.
 
     if load_setpoints() != slider_values:
         save_settings(new_settings)  # type: ignore
+
+    st.session_state.slider_values = slider_values
 
     # PRICE OFFSETS ===================
 
