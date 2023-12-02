@@ -1,3 +1,9 @@
+## 3.1.3 (2023-12-02)
+
+### Fix
+
+- **frontend**: fixed slider jumpback bug
+
 ## 3.1.2 (2023-11-30)
 
 ### Fix
