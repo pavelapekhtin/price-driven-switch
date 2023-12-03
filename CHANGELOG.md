@@ -1,3 +1,8 @@
+## 3.1.4 (2023-12-03)
+
+- **docker**: improved docker image security
+
+
 ## 3.1.3 (2023-12-02)
 
 ### Fix

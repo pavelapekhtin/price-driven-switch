@@ -1,24 +1,36 @@
+# Use an official Python runtime as a parent image
 FROM python:3.11
 
-ENV PYTHONUNBUFFERED=1
+# Set environment variables to make Python output unbuffered and disable creation of .pyc files
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
+# Set the working directory in the container
 WORKDIR /app
 
-# Install Supervisord, Neovim and less
-RUN apt-get update && apt-get install -y supervisor neovim less
+# Install only required packages and clean up cache to minimize image size and attack surface
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    supervisor \
+    neovim \
+    less \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy pyproject.toml and poetry.lock files
-COPY ../pyproject.toml ../poetry.lock* /app/
+# Copy pyproject.toml and poetry.lock files (using .dockerignore to ignore unnecessary files)
+COPY pyproject.toml poetry.lock* /app/
 
-# Copy the backend code into the container
-COPY ./price_driven_switch/ /app/price_driven_switch
-COPY ./README.md /app/README.md
-COPY ./price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy the application code into the container
+COPY price_driven_switch/ /app/price_driven_switch
+COPY README.md /app/README.md
+COPY price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Install poetry and only 'backend' group dependencies
 RUN pip install --no-cache-dir poetry \
     && poetry config virtualenvs.create false \
-    && poetry install --without dev
+    && poetry install --no-dev
+
+# Create a non-root user and change ownership of the working directory
+RUN useradd -m appuser && chown -R appuser /app
+USER appuser
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8080 8501

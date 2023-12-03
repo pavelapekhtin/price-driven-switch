@@ -1,5 +1,18 @@
-FROM nginx
+# Use a minimal Nginx base image
+FROM nginx:alpine
 
+# Remove the default Nginx configuration file
 RUN rm /etc/nginx/conf.d/default.conf
 
+# Copy your custom Nginx configuration file into the container
 COPY nginx.conf /etc/nginx/conf.d/
+
+# Create necessary directories for Nginx and set proper permissions
+RUN mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp /var/cache/nginx/scgi_temp \
+    && chmod -R 777 /var/cache/nginx
+
+# Expose the ports that Nginx is set to listen on
+EXPOSE 80
+
+# Start Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]
