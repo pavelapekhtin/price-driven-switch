@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import Any, Dict
 
 import pandas as pd
@@ -75,7 +76,7 @@ def price_sliders() -> None:
     save_settings(new_settings)
 
 
-def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:
+def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -> None:
     if prices_df.empty:
         st.write("Tomorrow's prices are become available after 13:00")
         return
@@ -140,6 +141,27 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict) -> None:
                 name=key,
             )
         )
+
+    # Add current time line if show_time is True
+    def shape_part(xoffset: float, y0: float, y1: float, color: str, width: int):
+        fig.add_shape(
+            go.layout.Shape(
+                type="line",
+                xref="x",
+                yref="paper",
+                x0=current_hour + xoffset,
+                x1=current_hour + xoffset,
+                y0=y0,
+                y1=y1,
+                line=dict(color=color, width=width),
+            )
+        )
+
+    if show_time:
+        current_hour = datetime.now().hour
+        shape_part(-0.5, -0.12, 1.05, "rgba(255, 0, 0, 1)", 1)  # left border
+        shape_part(0.5, -0.12, 1.05, "rgba(255, 0, 0, 1)", 1)  # right border
+        shape_part(0, -0.12, 1.05, "rgba(255, 0, 0, 0.1)", 22)  # fill
 
     # Update layout
     tick_labels = list(prices_df.index)
