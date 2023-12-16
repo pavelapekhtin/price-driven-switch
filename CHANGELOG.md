@@ -1,3 +1,13 @@
+## 3.2.0 (2023-12-16)
+
+### Feat
+
+- **frontend**: added current hour line to today chart
+
+### Fix
+
+- **price_file**: moved noon file check time
+
 ## 3.1.4 (2023-12-03)
 
 - **docker**: improved docker image security
