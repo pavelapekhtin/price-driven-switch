@@ -8,7 +8,7 @@
     "editor.formatOnSave": true,
     "editor.fontSize": 13,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
+        "source.organizeImports": true
     },
     "python.analysis.typeCheckingMode": "basic",
     "vim.smartRelativeLine": true,

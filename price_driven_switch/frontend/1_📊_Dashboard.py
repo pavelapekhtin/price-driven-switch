@@ -93,10 +93,10 @@ async def main():
     tomo_df = pd.DataFrame({"Prices": tomo_prices})
 
     st.subheader("Today")
-    plot_prices(today_df, offset_prices_today, show_time=True)
+    plot_prices(today_df, offset_prices_today)
 
     st.subheader("Tomorrow")
-    plot_prices(tomo_df, offset_prices_tomorrow, show_time=False)
+    plot_prices(tomo_df, offset_prices_tomorrow)
 
 
 if __name__ == "__main__":
