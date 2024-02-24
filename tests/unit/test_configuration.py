@@ -1,5 +1,3 @@
-import logging
-
 import pytest
 import toml
 from loguru import logger
@@ -7,6 +5,7 @@ from loguru import logger
 from price_driven_switch.backend.configuration import (
     create_default_settings_if_none,
     default_settings_toml,
+    get_package_version_from_toml,
     update_max_power,
     validate_settings,
 )
@@ -119,3 +118,8 @@ def test_update_max_power():
         sample_data_missing_settings, new_max_power
     )
     assert "Settings" not in updated_data_missing_settings
+
+
+@pytest.mark.unit
+def test_get_package_version_from_toml():
+    assert isinstance(get_package_version_from_toml(), str)
