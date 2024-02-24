@@ -1,3 +1,9 @@
+## 3.3.0 (2024-02-24)
+
+### Feat
+
+- **configureation**: show app version in Streamlit dashboard
+
 ## 3.2.1 (2024-02-24)
 
 ### Fix
