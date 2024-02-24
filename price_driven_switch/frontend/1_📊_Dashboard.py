@@ -4,7 +4,10 @@ import os
 import pandas as pd
 import streamlit as st
 
-from price_driven_switch.backend.configuration import save_settings
+from price_driven_switch.backend.configuration import (
+    get_package_version_from_toml,
+    save_settings,
+)
 from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.prices import Prices
 from price_driven_switch.frontend.st_functions import (
@@ -19,6 +22,7 @@ from price_driven_switch.frontend.st_functions import (
 )
 
 st.sidebar.title("Price Based Controller", anchor="top")
+st.sidebar.caption(f"Version: {get_package_version_from_toml()}")
 
 if "api_token" not in st.session_state:
     st.session_state["api_token"] = os.environ.get("TIBBER_TOKEN", "")
