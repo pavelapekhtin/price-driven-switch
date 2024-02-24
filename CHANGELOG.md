@@ -1,3 +1,9 @@
+## 3.2.1 (2024-02-24)
+
+### Fix
+
+- **poetry**: bumpt fastapi version
+
 ## 3.2.0 (2023-12-16)
 
 ### Feat
