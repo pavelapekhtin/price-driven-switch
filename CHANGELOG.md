@@ -1,3 +1,9 @@
+## 3.3.1 (2024-02-25)
+
+### Fix
+
+- **frontend**: previous update removed released features
+
 ## 3.3.0 (2024-02-24)
 
 ### Feat
