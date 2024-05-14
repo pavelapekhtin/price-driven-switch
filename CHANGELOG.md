@@ -1,3 +1,9 @@
+## 3.3.3 (2024-05-14)
+
+### Fix
+
+- **build**: bump black version and style edits
+
 ## 3.3.1 (2024-05-14)
 
 ### Fix
