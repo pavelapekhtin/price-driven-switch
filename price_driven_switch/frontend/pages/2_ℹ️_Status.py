@@ -25,9 +25,11 @@ if power_limit > 0:
     with col2:
         st.metric(
             label="Power Now, kW",
-            value=round(get_power_reading() / 1000, 3)  # type: ignore
-            if isinstance(get_power_reading(), int)
-            else get_power_reading(),
+            value=(
+                round(get_power_reading() / 1000, 3)  # type: ignore
+                if isinstance(get_power_reading(), int)
+                else get_power_reading()
+            ),
             delta=round(
                 round(get_power_reading() / 1000, 3)  # type: ignore
                 - round(power_limit, 3),
