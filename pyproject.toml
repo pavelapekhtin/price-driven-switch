@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "price-driven-switch"
-version = "3.3.2"
+version = "3.3.3"
 description = "Provide on/off states via GET request based on power price from Tibber API"
 authors = ["pavelapekhtin <pavel.apekhtin@gmail.com>"]
 license = "MIT"
@@ -33,7 +33,7 @@ commitizen = "^3.7.0"
 mypy = "^1.5.1"
 types-toml = "^0.10.8.7"
 pandas-stubs = "^2.0.3.230814"
-black = "^23.7.0"
+black = "^24.4.2"
 ipykernel = "^6.25.2"
 hypothesis = "^6.86.2"
 pytest-asyncio = "^0.21.1"
