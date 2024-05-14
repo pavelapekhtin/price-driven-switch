@@ -1,3 +1,10 @@
+## 3.3.1 (2024-05-14)
+
+### Fix
+
+- **build**: bump black version and style edits
+- **frontend**: previous update removed released features
+
 ## 3.3.0 (2024-02-24)
 
 ### Feat
