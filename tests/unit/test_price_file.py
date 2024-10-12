@@ -108,7 +108,7 @@ class TestPriceFile:
         assert price_file._check_out_of_date("2021-01-02 00:05") is False
 
     @pytest.mark.unit
-    @freeze_time("2021-01-01 13:15")
+    @freeze_time("2021-01-01 13:20")
     def test_check_out_of_date_case_2(self):
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
@@ -116,8 +116,8 @@ class TestPriceFile:
         assert price_file._check_out_of_date("2020-12-31 23:05") is True
         assert price_file._check_out_of_date("2021-01-01 12:10") is True
         assert price_file._check_out_of_date("2021-01-01 11:15") is True
-        assert price_file._check_out_of_date("2021-01-01 13:15") is False
-        assert price_file._check_out_of_date("2021-01-01 13:16") is False
+        assert price_file._check_out_of_date("2021-01-01 13:20") is False
+        assert price_file._check_out_of_date("2021-01-01 13:21") is False
 
     @pytest.mark.unit
     @freeze_time("2021-01-01 12:15")
