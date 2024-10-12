@@ -78,7 +78,7 @@ def price_sliders() -> None:
 
 def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -> None:
     if prices_df.empty:
-        st.write("Tomorrow's prices are become available after 13:00")
+        st.write("Tomorrow's prices become available after 13:00")
         return
 
     sorted_offset_prices = sorted(

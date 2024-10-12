@@ -31,16 +31,16 @@ class PriceFile:
         file_date = dt.datetime.strptime(date, "%Y-%m-%d %H:%M")
         time_now = dt.datetime.now()
 
-        # Create datetime objects for today's midnight and 1:15 PM based on time_now
+        # Create datetime objects for today's midnight and 1:20 PM based on time_now
         today_midnight = dt.datetime(time_now.year, time_now.month, time_now.day, 0, 0)
-        today_1_05_pm = dt.datetime(time_now.year, time_now.month, time_now.day, 13, 15)
+        today_1_20_pm = dt.datetime(time_now.year, time_now.month, time_now.day, 13, 20)
 
         # Check if file_date is before today's midnight
         if file_date < today_midnight:
             return True
 
-        # Check if file_date is before today's 1:05 PM and time_now is past 1:05 PM
-        if file_date < today_1_05_pm and time_now >= today_1_05_pm:
+        # Check if file_date is before today's 1:20 PM and time_now is past 1:20 PM
+        if file_date < today_1_20_pm and time_now >= today_1_20_pm:
             return True
 
         return False
