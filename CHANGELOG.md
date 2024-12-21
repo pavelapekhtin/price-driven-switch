@@ -1,3 +1,13 @@
+## 3.3.5 (2024-12-21)
+
+### Fix
+
+- **price-file**: changed price update check to 1:20 pm and corrected frontend typo
+
+## 3.3.2 (2024-05-14)
+
+## 3.3.1 (2024-02-25)
+
 ## 3.3.4 (2024-07-07)
 
 ## 3.3.3 (2024-05-14)
