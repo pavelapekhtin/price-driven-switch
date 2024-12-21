@@ -3,10 +3,8 @@ import os
 
 import streamlit as st
 from dotenv import load_dotenv
-from loguru import logger
 
 from price_driven_switch.backend.configuration import load_settings_file, save_api_key
-from price_driven_switch.backend.switch_logic import load_appliances_df
 from price_driven_switch.frontend.st_functions import (
     appliances_editor,
     check_token,
@@ -46,7 +44,7 @@ def main():
         # Save API key
         save_api_key(st.session_state.api_token)  # type: ignore
 
-    original_settings = load_settings_file().copy()
+    load_settings_file().copy()
 
     st.text(" ")
     st.subheader("Appliances")
