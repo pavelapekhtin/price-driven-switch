@@ -8,7 +8,7 @@ from price_driven_switch.backend.tibber_connection import TibberConnection
 class PriceFile:
     def __init__(
         self,
-        tibber_connection: TibberConnection = TibberConnection(),
+        tibber_connection: TibberConnection = TibberConnection(),  # noqa: B008
         path: str = "price_driven_switch/config/prices.json",
     ) -> None:
         self.tibber_connection = tibber_connection
@@ -40,10 +40,7 @@ class PriceFile:
             return True
 
         # Check if file_date is before today's 1:20 PM and time_now is past 1:20 PM
-        if file_date < today_1_20_pm and time_now >= today_1_20_pm:
-            return True
-
-        return False
+        return bool(file_date < today_1_20_pm and time_now >= today_1_20_pm)
 
     def _load_price_file(self) -> tuple[str, dict]:
         with open(self.path, mode="r", encoding="utf-8") as json_file:

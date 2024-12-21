@@ -95,8 +95,8 @@ def limit_power(
                     # check if appliance was on in swtich_df but is off in prev_states_df
                     if (
                         (prev_row["Priority"] == priority)
-                        and (prev_row["on"] == False)
-                        and (switch_df.at[index, "on"] == True)
+                        and (prev_row["on"] == False)  # noqa: E712
+                        and (switch_df.at[index, "on"] == True)  # noqa: E712
                     ):
                         total_power = power_now + prev_row["Power"] * 1000
                         if switch_df.at[index, "Power"] < power_reserve / 1000:
@@ -109,7 +109,7 @@ def limit_power(
                                 f"Estimated total power now {total_power/ 1000} kW"
                             )
                             logger.debug(f"Power reserve now {power_reserve / 1000} kW")
-                    if switch_df.at[index, "on"] == False:
+                    if switch_df.at[index, "on"] == False:  # noqa: E712
                         prev_states_df.at[index, "on"] = False
             logger.debug("No more appliances can be turned on")
             return prev_states_df
