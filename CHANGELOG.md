@@ -1,3 +1,9 @@
+## 3.3.5 (2024-12-21)
+
+### Fix
+
+- **dependencies**: update dependencies
+
 ## 3.3.5 (2024-10-12)
 
 ### Fix
