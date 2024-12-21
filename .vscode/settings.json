@@ -10,10 +10,10 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
-    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.typeCheckingMode": "standard",
     "vim.smartRelativeLine": true,
     "todo-tree.tree.scanMode": "workspace only",
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "charliermarsh.ruff"
     }
 }

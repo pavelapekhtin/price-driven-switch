@@ -128,7 +128,7 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
                 x1=max(prices_df.index),
                 y0=price,
                 y1=price,
-                line=dict(color=color, width=2),
+                line={"color": color, "width": 2},
             )
         )
         # Dummy scatter trace for the legend to show the line color
@@ -137,7 +137,7 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
                 x=[None],  # no points to plot
                 y=[None],
                 mode="lines",
-                line=dict(color=color, width=2),
+                line={"color": color, "width": 2},
                 name=key,
             )
         )
@@ -153,7 +153,7 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
                 x1=current_hour + xoffset,
                 y0=y0,
                 y1=y1,
-                line=dict(color=color, width=width),
+                line={"color": color, "width": width},
             )
         )
 
@@ -166,8 +166,8 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
     # Update layout
     tick_labels = list(prices_df.index)
     fig.update_layout(
-        yaxis=dict(title="Price (Øre/kWh)"),
-        xaxis=dict(tickvals=tick_labels, ticktext=tick_labels, title="Hour"),
+        yaxis={"title": "Price (Øre/kWh)"},
+        xaxis={"tickvals": tick_labels, "ticktext": tick_labels, "title": "Hour"},
     )
 
     st.plotly_chart(fig)
@@ -184,17 +184,16 @@ async def check_token(token: str | None) -> None:
 async def token_check_homepage() -> bool:
     token = str(os.environ.get("TIBBER_TOKEN"))
     token_valid = await TibberConnection(token).check_token_validity()
-    if token_valid:
-        return True
-    else:
-        return False
+    return bool(token_valid)
 
 
 # Settings page
 
 
 async def api_token_input() -> None:
-    with st.container():  # Use a container to encapsulate widgets and avoid key conflicts.
+    with (
+        st.container()
+    ):  # Use a container to encapsulate widgets and avoid key conflicts.
         if os.environ.get("TIBBER_TOKEN"):
             token = st.text_input(
                 "Tibber API Token",

@@ -49,7 +49,8 @@ async def price_only_switch_states():
     )
 
 
-power_limit = lambda: load_settings_file(SETTINGS_PATH)["Settings"]["MaxPower"]
+def power_limit():
+    return load_settings_file(SETTINGS_PATH)["Settings"]["MaxPower"]
 
 
 def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, int]:

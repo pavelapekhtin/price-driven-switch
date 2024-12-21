@@ -1,10 +1,6 @@
 import asyncio
-import os
 
-import tibber
 
-from price_driven_switch.backend.configuration import load_settings_file
-from price_driven_switch.backend.switch_logic import limit_power
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 # loop = asyncio.get_event_loop()
