@@ -87,11 +87,10 @@ file_lock = threading.Lock()
 
 
 def load_settings_file(path: str = PATH_SETTINGS) -> dict:
-    with file_lock:
-        with open(path, mode="r", encoding="utf-8") as toml_file:
-            settings = toml.load(toml_file)
-            validate_settings(settings)
-            return settings
+    with file_lock, open(path, mode="r", encoding="utf-8") as toml_file:
+        settings = toml.load(toml_file)
+        validate_settings(settings)
+        return settings
 
 
 def load_global_settings() -> dict:

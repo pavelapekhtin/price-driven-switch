@@ -1,11 +1,10 @@
 import datetime
 import json
 import logging
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Union
 from unittest.mock import patch
 
 import pytest
-import pytz
 
 from price_driven_switch.backend.configuration import load_settings_file
 from price_driven_switch.backend.prices import Prices

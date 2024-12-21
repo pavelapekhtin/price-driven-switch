@@ -1,9 +1,6 @@
 import pandas as pd
 import pytest
-from hypothesis import given
-from hypothesis import strategies as st
 
-from price_driven_switch.backend.configuration import load_settings_file
 from price_driven_switch.backend.switch_logic import limit_power, load_appliances_df
 
 

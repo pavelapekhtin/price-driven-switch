@@ -36,11 +36,13 @@ class TestPriceFile:
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
 
-        with patch("os.path.exists", return_value=False):
-            with patch(
+        with (
+            patch("os.path.exists", return_value=False),
+            patch(
                 "price_driven_switch.backend.price_file.PriceFile._update_price_file"
-            ) as mock_update:
-                await price_file._check_file()
+            ) as mock_update,
+        ):
+            await price_file._check_file()
 
         mock_update.assert_called_once()
 
@@ -51,15 +53,17 @@ class TestPriceFile:
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
 
-        with patch("os.path.exists", return_value=True):
-            with patch(
+        with (
+            patch("os.path.exists", return_value=True),
+            patch(
                 "price_driven_switch.backend.price_file.PriceFile._load_price_file",
                 return_value=("2023-05-06 18:25", {}),
-            ):
-                with patch(
-                    "price_driven_switch.backend.price_file.PriceFile._write_prices_file"
-                ) as mock_write:
-                    await price_file._check_file()
+            ),
+            patch(
+                "price_driven_switch.backend.price_file.PriceFile._write_prices_file"
+            ) as mock_write,
+        ):
+            await price_file._check_file()
 
         mock_write.assert_called_once()
 
@@ -70,15 +74,17 @@ class TestPriceFile:
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
 
-        with patch("os.path.exists", return_value=True):
-            with patch(
+        with (
+            patch("os.path.exists", return_value=True),
+            patch(
                 "price_driven_switch.backend.price_file.PriceFile._load_price_file",
                 return_value=("2023-05-06 18:25", {}),
-            ):
-                with patch(
-                    "price_driven_switch.backend.price_file.PriceFile._write_prices_file"
-                ) as mock_write:
-                    await price_file._check_file()
+            ),
+            patch(
+                "price_driven_switch.backend.price_file.PriceFile._write_prices_file"
+            ) as mock_write,
+        ):
+            await price_file._check_file()
 
         mock_write.assert_not_called()
 
@@ -134,9 +140,10 @@ class TestPriceFile:
         mock_tibber = TibberConnection("test_token")
         price_file = PriceFile(mock_tibber)
 
-        with patch("builtins.open", mock_open()) as mock_file, patch(
-            "json.dump"
-        ) as mock_json_dump:
+        with (
+            patch("builtins.open", mock_open()) as mock_file,
+            patch("json.dump") as mock_json_dump,
+        ):
             await price_file._update_price_file()
 
         mock_json_dump.assert_called_once()
@@ -158,9 +165,10 @@ class TestPriceFile:
 
         api_response = {"some_key": "some_value"}
 
-        with patch("builtins.open", mock_open()) as mock_file, patch(
-            "json.dump"
-        ) as mock_json_dump:
+        with (
+            patch("builtins.open", mock_open()) as mock_file,
+            patch("json.dump") as mock_json_dump,
+        ):
             price_file._write_prices_file(api_response)
 
         mock_json_dump.assert_called_once_with(api_response, mock_file())
