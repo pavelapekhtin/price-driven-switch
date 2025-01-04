@@ -1,3 +1,9 @@
+## 4.0.1 (2025-01-05)
+
+### Fix
+
+- **ci-cd**: added --system flag to github actions pip install
+
 ## 4.0.0 (2025-01-05)
 
 ### BREAKING CHANGE
