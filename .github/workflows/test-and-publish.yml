@@ -22,7 +22,7 @@ jobs:
         uv pip install --system tox tox-uv
         uv pip install --system -e .
     - name: Run Tox
-      run: uv pip run tox -e ruff,mypy,py311
+      run: uv run tox -e ruff,mypy,py311
       env:
         PYTHONPATH: ${{ github.workspace }}
   docker-build-push:
