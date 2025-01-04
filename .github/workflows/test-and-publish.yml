@@ -15,14 +15,14 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install Tox and Poetry
+    - name: Install Tox and uv
       run: |
         pip install tox
-        pip install poetry
+        pip install uv
     - name: Install Dependencies
-      run: poetry install
+      run: uv pip install -e .
     - name: Run Tox
-      run: tox 
+      run: tox
   docker-build-push:
     needs: test
     if: startsWith(github.ref, 'refs/tags/')
