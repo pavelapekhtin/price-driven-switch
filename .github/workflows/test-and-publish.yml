@@ -20,7 +20,7 @@ jobs:
         pip install tox
         pip install uv
     - name: Install Dependencies
-      run: uv pip install -e .
+      run: uv pip install --system -e .
     - name: Run Tox
       run: tox
   docker-build-push:
