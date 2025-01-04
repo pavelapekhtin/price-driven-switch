@@ -1,3 +1,9 @@
+## 4.0.2 (2025-01-05)
+
+### Fix
+
+- **ci-cd**: changed gh actions tox run command to use uv
+
 ## 4.0.1 (2025-01-05)
 
 ### Fix
