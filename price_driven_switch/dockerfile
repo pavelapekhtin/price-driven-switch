@@ -23,7 +23,6 @@ COPY price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervis
 
 # Install uv and project dependencies
 RUN pip install --no-cache-dir uv && \
-
     uv pip install --system -e .
 
 # Create a non-root user and change ownership of the working directory
