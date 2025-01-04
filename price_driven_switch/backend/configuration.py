@@ -130,7 +130,7 @@ def save_api_key(api_key: str) -> None:
 def get_package_version_from_toml() -> str:
     with open("pyproject.toml", "r", encoding="utf-8") as file:
         data = toml.load(file)
-        return data["tool"]["poetry"]["version"]
+        return data["project"]["version"]
 
 
 create_default_settings_if_none()

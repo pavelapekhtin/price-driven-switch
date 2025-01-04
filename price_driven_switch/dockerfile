@@ -15,18 +15,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     less \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy pyproject.toml and poetry.lock files (using .dockerignore to ignore unnecessary files)
-COPY pyproject.toml poetry.lock* /app/
-
-# Copy the application code into the container
+# Copy project files
+COPY pyproject.toml /app/
 COPY price_driven_switch/ /app/price_driven_switch
 COPY README.md /app/README.md
 COPY price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Install poetry and only 'backend' group dependencies
-RUN pip install --no-cache-dir poetry \
-    && poetry config virtualenvs.create false \
-    && poetry install --no-dev
+# Install uv and project dependencies
+RUN pip install --no-cache-dir uv && \
+    uv pip install --system -e .
 
 # Create a non-root user and change ownership of the working directory
 RUN useradd -m appuser && chown -R appuser /app

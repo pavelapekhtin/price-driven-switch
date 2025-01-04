@@ -34,7 +34,9 @@ if power_limit > 0:
                 round(get_power_reading() / 1000, 3)  # type: ignore
                 - round(power_limit, 3),
                 3,
-            ),
+            )
+            if isinstance(get_power_reading(), int)
+            else "ERROR: NO DATA",
             delta_color="inverse",
         )
     with col3:

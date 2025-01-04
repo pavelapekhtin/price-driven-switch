@@ -1,4 +1,14 @@
-## 3.3.5 (2024-12-21)
+## 4.0.0 (2025-01-05)
+
+### BREAKING CHANGE
+
+- working on this package will require some familiarization with uv, check it at https://docs.astral.sh/uv/
+
+### Feat
+
+- **streamlit**: with power subscription inactive streamlit will give a hint that it is not rgetting data on the Status page
+
+## 3.3.6 (2024-12-21)
 
 ### Fix
 
@@ -10,10 +20,6 @@
 
 - **price-file**: changed price update check to 1:20 pm and corrected frontend typo
 
-## 3.3.2 (2024-05-14)
-
-## 3.3.1 (2024-02-25)
-
 ## 3.3.4 (2024-07-07)
 
 ## 3.3.3 (2024-05-14)
@@ -22,11 +28,12 @@
 
 - **build**: bump black version and style edits
 
-## 3.3.1 (2024-05-14)
+## 3.3.2 (2024-05-14)
+
+## 3.3.1 (2024-02-25)
 
 ### Fix
 
-- **build**: bump black version and style edits
 - **frontend**: previous update removed released features
 
 ## 3.3.0 (2024-02-24)
@@ -52,9 +59,6 @@
 - **price_file**: moved noon file check time
 
 ## 3.1.4 (2023-12-03)
-
-- **docker**: improved docker image security
-
 
 ## 3.1.3 (2023-12-02)
 
@@ -92,11 +96,11 @@
 ### Fix
 
 - **frontend**: removed max_power warning from settings page at first run
-- **token-input**: container restart after token input no loger required
+- **token-input**: container restart after toke input no loger required
 
 ### Perf
 
-- **frontend**: editing appliances table does not require save button
+- **frontend**: editing appliances tabele does not require save button
 - **frontend**: sliders do not require a save button anymore
 
 ## 3.0.0 (2023-11-26)
@@ -117,7 +121,7 @@
 
 ### Fix
 
-- **tibber**: separated realtime and static API for frontend to work
+- **tibber**: separated realtime and and static API for frontend to work
 
 ## 2.2.3 (2023-11-12)
 
@@ -130,6 +134,8 @@
 ### Fix
 
 - **tibber_connection**: resubscribe if subscription is down fixed
+
+## 2.2.1 (2023-11-04)
 
 ## 2.2.0 (2023-11-04)
 
@@ -165,7 +171,7 @@
 
 ### BREAKING CHANGE
 
-- Since streamlit now performs calls to FastAPI on 172.18.0.1 to get Tibber status, a network should be added to docker-compose.yml to reserve this address ffor cross-container communication. Update your local docker-compose file with the code from the file in the repository.
+- Since streamlit now performs calls to FastAPI on 172.18.0.1 to get Tibber status, a network should be added to docker-compose.yml to reserve this address ffor cross-container communication. Update your local docker-compose file with the code fromt the file in the repository.
 
 ### Feat
 
@@ -246,8 +252,6 @@
 
 - **nginx.conf**: nginx config name bug fixed
 
-## 0.3.4 (2023-09-09)
-
 ## 0.3.5 (2023-09-09)
 
 ### Fix
@@ -258,7 +262,6 @@
 
 ### Fix
 
-- **nginx**: path fix for config file
 - **nginx**: reverting to custom nginx
 
 ## 0.3.3 (2023-09-09)
@@ -299,4 +302,3 @@
 - **frontend/dashboard**: fixed slider behaviour
 
 ## 0.1.0 (2023-09-03)
-Initial release

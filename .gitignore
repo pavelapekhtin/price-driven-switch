@@ -132,3 +132,6 @@ settings.toml
 todo.md
 tester.ipynb
 prices.json
+
+# ruff
+.ruff_cache/
