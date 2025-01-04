@@ -1,3 +1,9 @@
+## 4.0.4 (2025-01-05)
+
+### Fix
+
+- **gh-actions**: kept only py 311 version tests and some fixes to tox
+
 ## 4.0.3 (2025-01-05)
 
 ## 4.0.2 (2025-01-05)
