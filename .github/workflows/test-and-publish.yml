@@ -22,7 +22,7 @@ jobs:
         uv pip install --system tox
         uv pip install --system -e .
     - name: Run Tox
-      run: uv pip run tox
+      run: uv run tox
   docker-build-push:
     needs: test
     if: startsWith(github.ref, 'refs/tags/')
