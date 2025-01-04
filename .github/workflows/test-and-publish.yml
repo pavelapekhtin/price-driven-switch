@@ -19,10 +19,12 @@ jobs:
       run: pip install uv
     - name: Install Dependencies
       run: |
-        uv pip install --system tox
+        uv pip install --system tox tox-uv
         uv pip install --system -e .
     - name: Run Tox
-      run: uv run tox
+      run: uv pip run tox -e ruff,mypy,py311
+      env:
+        PYTHONPATH: ${{ github.workspace }}
   docker-build-push:
     needs: test
     if: startsWith(github.ref, 'refs/tags/')
