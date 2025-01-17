@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { checkApiKeyStatus, getApiKey, setApiKey } from '$lib/api/client';
+	import {
+		checkApiKeyStatus,
+		getApiKey,
+		getPowerLimit,
+		setApiKey,
+		setPowerLimit
+	} from '$lib/api/client';
 	import { onMount } from 'svelte';
 
 	let tibber_api_token = '';
@@ -7,16 +13,22 @@
 	let loading = false;
 	let error = '';
 
+	let power_limit = 0;
+	let power_limit_error = '';
+	let power_limit_loading = false;
+
 	onMount(async () => {
 		try {
-			const key = await getApiKey();
+			const [key, limit] = await Promise.all([getApiKey(), getPowerLimit()]);
 			tibber_api_token = key;
+			power_limit = limit;
 			await validateApiKey();
 		} catch (e) {
-			error = 'Failed to load API key';
+			error = 'Failed to load settings';
 		}
 	});
 
+	// FIXME: this one should only run again if the value of tibber_api_token has changed
 	async function validateApiKey() {
 		if (!tibber_api_token) {
 			auth_status = 'pending';
@@ -50,9 +62,20 @@
 			loading = false;
 		}
 	}
-</script>
 
-<h1>Settings</h1>
+	async function handlePowerLimitSave() {
+		power_limit_loading = true;
+		power_limit_error = '';
+
+		try {
+			await setPowerLimit(power_limit);
+		} catch (e) {
+			power_limit_error = 'Failed to save power limit';
+		} finally {
+			power_limit_loading = false;
+		}
+	}
+</script>
 
 <div class="settings-section">
 	<h2>Tibber API Token</h2>
@@ -81,6 +104,37 @@
 			<p class="unauthorized">✗ Unauthorized, check API key</p>
 		{/if}
 	</div>
+</div>
+
+<div class="settings-section">
+	<h2>Power Limit (kW)</h2>
+	<div class="input-group">
+		<div class="number-input">
+			<button
+				on:click={() => (power_limit = Math.max(0, power_limit - 1))}
+				class="stepper"
+				disabled={power_limit_loading}>-</button
+			>
+			<input
+				type="number"
+				bind:value={power_limit}
+				min="0"
+				step="1"
+				class="power-input"
+				disabled={power_limit_loading}
+			/>
+			<button
+				on:click={() => (power_limit = power_limit + 1)}
+				class="stepper"
+				disabled={power_limit_loading}>+</button
+			>
+		</div>
+		<button on:click={handlePowerLimitSave} disabled={power_limit_loading}> Save </button>
+	</div>
+
+	{#if power_limit_error}
+		<p class="error">{power_limit_error}</p>
+	{/if}
 </div>
 
 <style>
@@ -139,5 +193,48 @@
 
 	.unauthorized {
 		color: red;
+	}
+
+	.number-input {
+		display: flex;
+		align-items: center;
+		flex: 1;
+	}
+
+	.power-input {
+		flex: 1;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		text-align: center;
+		font-size: 1.5rem;
+		font-family: monospace;
+	}
+
+	.stepper {
+		padding: 0.5rem 1.9rem;
+		background: #f5f5f5;
+		color: #333;
+		border: 1px solid #ccc;
+		cursor: pointer;
+	}
+
+	.stepper:first-child {
+		border-radius: 4px;
+		background-color: #9ddeb2;
+	}
+
+	.stepper:last-child {
+		border-radius: 4px;
+		background-color: #f3898d;
+	}
+
+	.stepper:hover:not(:disabled) {
+		background: #e0e0e0;
+	}
+
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
 </style>
