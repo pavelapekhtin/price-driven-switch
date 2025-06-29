@@ -123,3 +123,68 @@ def test_update_max_power():
 @pytest.mark.unit
 def test_get_package_version_from_toml():
     assert isinstance(get_package_version_from_toml(), str)
+
+
+@pytest.mark.unit
+def test_default_settings_include_grid_rent():
+    """Test that default settings include grid rent configuration."""
+    assert "Settings" in default_settings_toml
+    assert "IncludeGridRent" in default_settings_toml["Settings"]
+    assert "GridRent" in default_settings_toml["Settings"]
+
+    # Check grid rent structure
+    grid_rent = default_settings_toml["Settings"]["GridRent"]
+    assert "JanMar" in grid_rent
+    assert "AprDec" in grid_rent
+
+    # Check JanMar rates
+    assert "Day" in grid_rent["JanMar"]
+    assert "Night" in grid_rent["JanMar"]
+    assert grid_rent["JanMar"]["Day"] == 50.94
+    assert grid_rent["JanMar"]["Night"] == 38.21
+
+    # Check AprDec rates
+    assert "Day" in grid_rent["AprDec"]
+    assert "Night" in grid_rent["AprDec"]
+    assert grid_rent["AprDec"]["Day"] == 59.86
+    assert grid_rent["AprDec"]["Night"] == 47.13
+
+
+@pytest.mark.unit
+def test_validate_settings_with_grid_rent():
+    """Test that settings validation works with grid rent configuration."""
+    test_data_with_grid_rent = {
+        "Appliances": {
+            "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Floor": {"Group": "B", "Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Settings": {
+            "MaxPower": 5.0,
+            "Timezone": "Europe/Oslo",
+            "IncludeGridRent": True,
+            "GridRent": {
+                "JanMar": {"Day": 50.94, "Night": 38.21},
+                "AprDec": {"Day": 59.86, "Night": 47.13},
+            },
+        },
+    }
+
+    # Should not raise any exception
+    assert validate_settings(test_data_with_grid_rent) is None
+
+
+@pytest.mark.unit
+def test_validate_settings_without_grid_rent():
+    """Test that settings validation works without grid rent configuration."""
+    test_data_without_grid_rent = {
+        "Appliances": {
+            "Boilers": {"Group": "A", "Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Floor": {"Group": "B", "Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Other": {"Group": "C", "Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Settings": {"MaxPower": 5.0, "Timezone": "Europe/Oslo"},
+    }
+
+    # Should not raise any exception (grid rent is optional)
+    assert validate_settings(test_data_without_grid_rent) is None
