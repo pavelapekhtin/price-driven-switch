@@ -326,3 +326,106 @@ def get_subscription_status() -> str:
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
         return str(e)
+
+
+def update_grid_rent_settings(
+    original_dict: Dict[str, Any],
+    include_grid_rent: bool,
+    jan_mar_day: float,
+    jan_mar_night: float,
+    apr_dec_day: float,
+    apr_dec_night: float,
+) -> Dict[str, Any]:
+    """Update grid rent settings in the configuration."""
+    if "Settings" not in original_dict:
+        original_dict["Settings"] = {}
+
+    original_dict["Settings"]["IncludeGridRent"] = include_grid_rent
+    original_dict["Settings"]["GridRent"] = {
+        "JanMar": {"Day": jan_mar_day, "Night": jan_mar_night},
+        "AprDec": {"Day": apr_dec_day, "Night": apr_dec_night},
+    }
+
+    return original_dict
+
+
+def grid_rent_configuration() -> None:
+    """Display and handle grid rent configuration in the settings page."""
+    settings = load_settings_file()
+    current_settings = settings.get("Settings", {})
+
+    st.subheader("Grid Rent Configuration")
+
+    # Toggle for including grid rent
+    include_grid_rent = st.checkbox(
+        "Include Grid Rent in Prices",
+        value=current_settings.get("IncludeGridRent", True),
+        help="When enabled, grid rent will be added to electricity prices",
+    )
+
+    # Grid rent rates configuration
+    grid_rent = current_settings.get(
+        "GridRent",
+        {
+            "JanMar": {"Day": 50.94, "Night": 38.21},
+            "AprDec": {"Day": 59.86, "Night": 47.13},
+        },
+    )
+
+    st.write("**Grid Rent Rates (øre/kWh)**")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("**January - March**")
+        jan_mar_day = st.number_input(
+            "Day Rate (06:00-22:00) øre/kWh",
+            value=float(grid_rent.get("JanMar", {}).get("Day", 50.94)),
+            min_value=0.0,
+            step=0.01,
+            format="%.2f",
+        )
+        jan_mar_night = st.number_input(
+            "Night/Weekend Rate (22:00-06:00 + weekends) øre/kWh",
+            value=float(grid_rent.get("JanMar", {}).get("Night", 38.21)),
+            min_value=0.0,
+            step=0.01,
+            format="%.2f",
+        )
+
+    with col2:
+        st.write("**April - December**")
+        apr_dec_day = st.number_input(
+            "Day Rate (06:00-22:00) øre/kWh",
+            value=float(grid_rent.get("AprDec", {}).get("Day", 59.86)),
+            min_value=0.0,
+            step=0.01,
+            format="%.2f",
+        )
+        apr_dec_night = st.number_input(
+            "Night/Weekend Rate (22:00-06:00 + weekends) øre/kWh",
+            value=float(grid_rent.get("AprDec", {}).get("Night", 47.13)),
+            min_value=0.0,
+            step=0.01,
+            format="%.2f",
+        )
+
+    # Save settings if any values changed
+    current_grid_rent = current_settings.get("GridRent", {})
+    if (
+        include_grid_rent != current_settings.get("IncludeGridRent", True)
+        or jan_mar_day != current_grid_rent.get("JanMar", {}).get("Day", 50.94)
+        or jan_mar_night != current_grid_rent.get("JanMar", {}).get("Night", 38.21)
+        or apr_dec_day != current_grid_rent.get("AprDec", {}).get("Day", 59.86)
+        or apr_dec_night != current_grid_rent.get("AprDec", {}).get("Night", 47.13)
+    ):
+        new_settings = update_grid_rent_settings(
+            settings.copy(),
+            include_grid_rent,
+            jan_mar_day,
+            jan_mar_night,
+            apr_dec_day,
+            apr_dec_night,
+        )
+        save_settings(new_settings)
+        st.success("Grid rent settings updated!")

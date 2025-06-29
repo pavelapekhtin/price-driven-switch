@@ -20,7 +20,15 @@ default_settings_toml = {
         "Boiler 2": {"Power": 1.0, "Priority": 1, "Setpoint": 0.5},
         "Bathroom Floor": {"Power": 0.8, "Priority": 3, "Setpoint": 0.5},
     },
-    "Settings": {"MaxPower": 0.0, "Timezone": "Europe/Oslo"},
+    "Settings": {
+        "MaxPower": 0.0,
+        "Timezone": "Europe/Oslo",
+        "IncludeGridRent": True,
+        "GridRent": {
+            "JanMar": {"Day": 50.94, "Night": 38.21},
+            "AprDec": {"Day": 59.86, "Night": 47.13},
+        },
+    },
 }
 
 
@@ -53,6 +61,13 @@ class Appliance(BaseModel):
 class Settings(BaseModel):
     MaxPower: float = Field(..., ge=0)
     Timezone: str
+    IncludeGridRent: bool = True
+    GridRent: Dict[str, Dict[str, float]] = Field(
+        default={
+            "JanMar": {"Day": 50.94, "Night": 38.21},
+            "AprDec": {"Day": 59.86, "Night": 47.13},
+        }
+    )
 
 
 class TomlStructure(BaseModel):

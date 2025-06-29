@@ -1,9 +1,13 @@
 from datetime import datetime
 
+from price_driven_switch.backend.configuration import load_settings_file
+from price_driven_switch.backend.grid_rent import add_grid_rent_to_prices
+
 
 class Prices:
     def __init__(self, price_dict: dict) -> None:
         self.price_dict = price_dict
+        self.settings = load_settings_file()
 
     @property
     def offset_now(self) -> float:
@@ -47,11 +51,29 @@ class Prices:
 
     @property
     def today_prices(self) -> list[float]:
-        return self._load_prices("today")
+        base_prices = self._load_prices("today")
+        if self.settings.get("Settings", {}).get("IncludeGridRent", True):
+            grid_rent_config = self.settings.get("Settings", {}).get("GridRent", {})
+            today_date = datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            return add_grid_rent_to_prices(base_prices, today_date, grid_rent_config)
+        return base_prices
 
     @property
     def tomo_prices(self) -> list[float]:
-        return self._load_prices("tomorrow")
+        base_prices = self._load_prices("tomorrow")
+        if self.settings.get("Settings", {}).get("IncludeGridRent", True):
+            grid_rent_config = self.settings.get("Settings", {}).get("GridRent", {})
+            tomorrow_date = datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            # Add one day to get tomorrow
+            from datetime import timedelta
+
+            tomorrow_date += timedelta(days=1)
+            return add_grid_rent_to_prices(base_prices, tomorrow_date, grid_rent_config)
+        return base_prices
 
     def _load_prices(self, today_tomo: str) -> list[float]:
         api_dict = self.price_dict
