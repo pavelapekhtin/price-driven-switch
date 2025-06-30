@@ -1,3 +1,11 @@
+## 4.1.0 (2025-06-30)
+
+### Feat
+
+- **grid-rent**: added norwegian holidays
+- **settings**: auto add grid rent settings if missing
+- added grid rent functionality
+
 ## 4.0.6 (2025-01-05)
 
 ### Fix

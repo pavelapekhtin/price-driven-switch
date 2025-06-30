@@ -12,6 +12,29 @@ from price_driven_switch.frontend.st_functions import (
 
 power_limit = load_settings_file().get("Settings", {}).get("MaxPower")
 
+# Show grid rent status
+grid_rent_info = load_settings_file().get("Settings", {}).get("GridRent", {})
+include_grid_rent = (
+    load_settings_file().get("Settings", {}).get("IncludeGridRent", True)
+)
+
+if include_grid_rent:
+    st.success("💰 Grid rent is enabled")
+    st.write("**Current Grid Rent Rates:**")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Jan-Mar:**")
+        st.write(f"Day: {grid_rent_info.get('JanMar', {}).get('Day', 0)} øre/kWh")
+        st.write(f"Night: {grid_rent_info.get('JanMar', {}).get('Night', 0)} øre/kWh")
+    with col2:
+        st.write("**Apr-Dec:**")
+        st.write(f"Day: {grid_rent_info.get('AprDec', {}).get('Day', 0)} øre/kWh")
+        st.write(f"Night: {grid_rent_info.get('AprDec', {}).get('Night', 0)} øre/kWh")
+else:
+    st.warning("⚠️ Grid rent is disabled")
+
+st.divider()
+
 # show subscription status, power now, power limit if power limit logic is enabled
 if power_limit > 0:
     col1, col2, col3 = st.columns(3)

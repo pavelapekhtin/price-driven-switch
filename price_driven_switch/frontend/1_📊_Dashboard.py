@@ -89,6 +89,14 @@ async def main():
 
     st.header("Power Prices")
 
+    # Show grid rent status
+    settings = load_settings_file()
+    include_grid_rent = settings.get("Settings", {}).get("IncludeGridRent", True)
+    if include_grid_rent:
+        st.info("💰 Grid rent is included in the prices shown below")
+    else:
+        st.warning("⚠️ Grid rent is not included in the prices shown below")
+
     today_prices = pd.Series(prices.today_prices) * 100
     tomo_prices = pd.Series(prices.tomo_prices) * 100
 
