@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 from typing import Dict
 
 
@@ -22,10 +22,10 @@ def calculate_easter_sunday(year: int) -> datetime:
     h = (19 * a + b - d - g + 15) % 30
     i = c // 4
     k = c % 4
-    l = (32 + 2 * e + 2 * i - h - k) % 7
-    m = (a + 11 * h + 22 * l) // 451
-    month = (h + l - 7 * m + 114) // 31
-    day = ((h + l - 7 * m + 114) % 31) + 1
+    ell = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * ell) // 451
+    month = (h + ell - 7 * m + 114) // 31
+    day = ((h + ell - 7 * m + 114) % 31) + 1
 
     return datetime(year, month, day)
 
@@ -92,11 +92,7 @@ def is_weekend_or_holiday(date: datetime) -> bool:
 
     # Check Easter-related holidays (movable feasts)
     easter_holidays = get_easter_holidays(date.year)
-    for holiday in easter_holidays:
-        if date.date() == holiday.date():
-            return True
-
-    return False
+    return any(date.date() == holiday.date() for holiday in easter_holidays)
 
 
 def is_night_time(hour: int) -> bool:
@@ -116,10 +112,7 @@ def get_grid_rent_rate(date: datetime, grid_rent_config: Dict) -> float:
         Grid rent rate in øre/kWh
     """
     # Determine season
-    if date.month in [1, 2, 3]:  # January - March
-        season = "JanMar"
-    else:  # April - December
-        season = "AprDec"
+    season = "JanMar" if date.month in [1, 2, 3] else "AprDec"
 
     # Determine if it's night/weekend or day
     if is_weekend_or_holiday(date) or is_night_time(date.hour):

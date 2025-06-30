@@ -1,3 +1,4 @@
+# mypy: disable-error-code="index"
 import logging
 import os
 import threading
@@ -68,6 +69,10 @@ def ensure_grid_rent_settings(data: dict) -> dict:
         data_copy["Settings"] = {}
 
     settings = data_copy["Settings"]
+    if not isinstance(settings, dict):
+        settings = {}
+        data_copy["Settings"] = settings
+
     updated = False
 
     # Check if IncludeGridRent is missing

@@ -264,9 +264,6 @@ class TestGridRent:
         # Test for 2024
         easter_holidays_2024 = get_easter_holidays(2024)
 
-        # Easter Sunday 2024 was March 31
-        easter_sunday_2024 = datetime(2024, 3, 31)
-
         expected_holidays = [
             datetime(2024, 3, 28),  # Maundy Thursday
             datetime(2024, 3, 29),  # Good Friday
@@ -278,7 +275,9 @@ class TestGridRent:
         ]
 
         assert len(easter_holidays_2024) == len(expected_holidays)
-        for expected, actual in zip(expected_holidays, easter_holidays_2024):
+        for expected, actual in zip(
+            expected_holidays, easter_holidays_2024, strict=True
+        ):
             assert actual == expected
 
     @pytest.mark.unit
@@ -408,10 +407,7 @@ class TestGridRent:
         ]
 
         for date in easter_dates_2024:
-            if date.month in [1, 2, 3]:
-                expected_rate = 38.21  # JanMar night rate
-            else:
-                expected_rate = 47.13  # AprDec night rate
+            expected_rate = 38.21 if date.month in [1, 2, 3] else 47.13
 
             result = get_grid_rent_rate(date, grid_rent_config)
             assert (
