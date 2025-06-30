@@ -4,6 +4,10 @@
 
 A smart home automation package that controls appliances based on real-time electricity spot prices. Currently supports Tibber for price data and includes Norwegian grid rent calculations.
 
+![Price-Driven Switch Dashboard](Screen.png)
+
+
+
 ### Key Features
 
 - **Real-time Price Control**: Provide RESTful api for controlling your devices based on electricity price using the smart home solution of your choice. 
