@@ -123,6 +123,14 @@ def today_prices_fixture() -> List[float]:
 
 
 @pytest.fixture
+def base_today_prices_fixture() -> List[float]:
+    """Fixture for base prices without grid rent (for backward compatibility)."""
+    json_data = load_json_fixture(PATH_TEST_PRICES)
+    _, today_prices = extract_data_from_json(json_data)
+    return today_prices  # type: ignore
+
+
+@pytest.fixture
 def json_string_fixture():
     json_data = load_json_fixture(PATH_TEST_PRICES)
     json_string = json.dumps(json_data)
@@ -164,7 +172,19 @@ def price_now_fixture() -> Union[None, float]:
 
 @pytest.fixture
 def prices_instance_fixture(api_response_fixture):
-    return Prices(api_response_fixture)
+    with patch(
+        "price_driven_switch.backend.prices.load_settings_file"
+    ) as mock_load_settings:
+        mock_load_settings.return_value = {
+            "Settings": {
+                "IncludeGridRent": False,
+                "GridRent": {
+                    "JanMar": {"Day": 50.94, "Night": 38.21},
+                    "AprDec": {"Day": 59.86, "Night": 47.13},
+                },
+            }
+        }
+        return Prices(api_response_fixture)
 
 
 @pytest.fixture
@@ -187,10 +207,24 @@ def mock_instance_hour_now():
 @pytest.fixture
 def mock_instance_with_hour(api_response_fixture):
     mock_hour_data = 6
-    with patch(
-        "price_driven_switch.backend.prices.Prices._hour_now",
-        return_value=mock_hour_data,
+    with (
+        patch(
+            "price_driven_switch.backend.prices.Prices._hour_now",
+            return_value=mock_hour_data,
+        ),
+        patch(
+            "price_driven_switch.backend.prices.load_settings_file"
+        ) as mock_load_settings,
     ):
+        mock_load_settings.return_value = {
+            "Settings": {
+                "IncludeGridRent": False,
+                "GridRent": {
+                    "JanMar": {"Day": 50.94, "Night": 38.21},
+                    "AprDec": {"Day": 59.86, "Night": 47.13},
+                },
+            }
+        }
         instance = Prices(api_response_fixture)
         yield mock_hour_data, instance
 
@@ -198,3 +232,54 @@ def mock_instance_with_hour(api_response_fixture):
 @pytest.fixture
 def settings_dict_fixture():
     return load_settings_file("tests/fixtures/settings_test.toml")
+
+
+@pytest.fixture
+def grid_rent_config_fixture():
+    """Fixture for grid rent configuration."""
+    return {
+        "JanMar": {"Day": 50.94, "Night": 38.21},
+        "AprDec": {"Day": 59.86, "Night": 47.13},
+    }
+
+
+@pytest.fixture
+def settings_with_grid_rent_fixture():
+    """Fixture for settings with grid rent enabled."""
+    return {
+        "Appliances": {
+            "Boiler 1": {"Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Boiler 2": {"Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Bathroom Floor": {"Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Settings": {
+            "MaxPower": 5.0,
+            "Timezone": "Europe/Oslo",
+            "IncludeGridRent": True,
+            "GridRent": {
+                "JanMar": {"Day": 50.94, "Night": 38.21},
+                "AprDec": {"Day": 59.86, "Night": 47.13},
+            },
+        },
+    }
+
+
+@pytest.fixture
+def settings_without_grid_rent_fixture():
+    """Fixture for settings with grid rent disabled."""
+    return {
+        "Appliances": {
+            "Boiler 1": {"Power": 1.5, "Priority": 2, "Setpoint": 0.5},
+            "Boiler 2": {"Power": 1.0, "Priority": 1, "Setpoint": 0.5},
+            "Bathroom Floor": {"Power": 0.8, "Priority": 3, "Setpoint": 0.5},
+        },
+        "Settings": {
+            "MaxPower": 5.0,
+            "Timezone": "Europe/Oslo",
+            "IncludeGridRent": False,
+            "GridRent": {
+                "JanMar": {"Day": 50.94, "Night": 38.21},
+                "AprDec": {"Day": 59.86, "Night": 47.13},
+            },
+        },
+    }

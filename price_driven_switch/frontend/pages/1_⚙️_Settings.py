@@ -8,6 +8,7 @@ from price_driven_switch.backend.configuration import load_settings_file, save_a
 from price_driven_switch.frontend.st_functions import (
     appliances_editor,
     check_token,
+    grid_rent_configuration,
     power_limit_input,
 )
 
@@ -52,6 +53,9 @@ def main():
     appliances_editor()
 
     power_limit_input()
+
+    st.text(" ")
+    grid_rent_configuration()
 
 
 if __name__ == "__main__":
