@@ -93,9 +93,9 @@ async def main():
     settings = load_settings_file()
     include_grid_rent = settings.get("Settings", {}).get("IncludeGridRent", True)
     if include_grid_rent:
-        st.info("💰 Grid rent is included in the prices shown below")
+        st.info("🔌  Grid rent included")
     else:
-        st.warning("⚠️ Grid rent is not included in the prices shown below")
+        st.info("⚠️ Spot price only. Grid rent not included.")
 
     today_prices = pd.Series(prices.today_prices) * 100
     tomo_prices = pd.Series(prices.tomo_prices) * 100

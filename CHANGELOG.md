@@ -1,3 +1,9 @@
+## 4.1.1 (2025-07-01)
+
+### Fix
+
+- **ui**: edited grid rent related palcks and removed info duplication
+
 ## 4.1.0 (2025-06-30)
 
 ### Feat
