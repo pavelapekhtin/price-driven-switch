@@ -1,81 +1,244 @@
-# price-driven-switch
+# Price-Driven Switch
 
 ## Description
 
-This is a package that allows to control smarthome appliance based on current spot price of electricity. For the time being only Tibber is supported for price data.
-The cutoff prices and appliances are configurable via a web interface built with Streamlit.
-Appliance on/off states are made available via a get request as a json object.
+A smart home automation package that controls appliances based on real-time electricity spot prices. Currently supports Tibber for price data and includes Norwegian grid rent calculations.
 
-![Webapp Screenshot](docs/Screenshot%20Webapp.png)
+### Key Features
+
+- **Real-time Price Control**: Provide RESTful api for controlling your devices based on electricity price using the smart home solution of your choice. 
+- **Grid Rent Integration**: Supports Norwegian grid rent model with configurable rates for different seasons and time periods
+- **Power Limiting**: Monitors total power consumption and automatically turns off low-priority appliances when exceeding limits, preventing you to go into the next price bracket with the grid provider. (Requires Tibber Pulse meter for real-time power draw monitoring)
+- **Web Interface**: User-friendly Streamlit-based configuration interface
+- **Docker Support**: Easy deployment with Docker and docker-compose
+
+### Supported Price Providers
+
+- **Tibber**: Real-time electricity prices from Tibber API
+- **Grid Rent**: Norwegian grid usage price model (default rates from BKK)
+
 
 ## Installation
 
-This package is meant to be run in docker. However you can run it locally if you want to.
+### Docker (Recommended)
 
-### Docker
+1. **Prerequisites**: Install [Docker](https://docs.docker.com/get-docker/) and docker-compose
 
-* Install docker and docker-compose on your machine. Get it here: [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+2. **Quick Start**:
+   ```bash
+   # Download the docker-compose.yml file
+   wget https://raw.githubusercontent.com/pavelapekhtin/price-driven-switch/main/docker-compose.yml
+   
+   # Start the container
+   docker-compose up -d
+   ```
 
-* In a folder of your choice create a docker-compose.yml file and paste the content of [docker-compose.yml](https://github.com/pavelapekhtin/price-driven-switch/blob/main/docker-compose.yml)
-. You can change the TZ variable to your timezone. The default is Europe/Oslo.
-
-* Run ```docker-compose up -d``` to start the container.
+3. **Custom Configuration**: Edit `docker-compose.yml` to change timezone (default: Europe/Oslo)
 
 Tested to work on arm64 and amd64 architectures, if you want to run it on a different architecture you will have to build the image yourself, for this clone the repository, navigate to the repository folder in the terminal and run ```docker compose -f docker-compose.dev.yml up -d```. This will build the containers from local files.
 
-### Local
+### Local Installation
 
-Navigate to the project folder and run:
-```pip install -e .```
+1. **Clone and Install**:
+   ```bash
+   git clone https://github.com/pavelapekhtin/price-driven-switch.git
+   cd price-driven-switch
+   pip install -e .
+   ```
 
-To start the web interface run:
-```streamlit run price_driven_switch/frontend/1_📊_Dashboard.py```
+2. **Start Services**:
+   ```bash
+   # Web interface
+   streamlit run price_driven_switch/frontend/1_📊_Dashboard.py
+   
+   # API server
+   uvicorn price_driven_switch/__main__.py:app --reload
+   ```
 
-To start fastapi run:
-```uvicorn price_driven_switch/__main__.py:app --reload```
+## Configuration
 
-## Usage
+### Initial Setup
 
-On your local network you can access the web interface by going to the address of the machine running the docker container.
-If you are running it locally you can access it at [http://localhost](http://localhost) or 127.0.0.1
-Once you opened the web interface you should enter your Tibber tokern for the app to work.
-Your tibber token can be found at [https://developer.tibber.com/settings/accesstoken](https://developer.tibber.com/settings/accesstoken)
-At the Settings page of the webapp you can rename, add and remove appliances and edit their settings.
+1. **Access Web Interface**: Navigate to `http://localhost` (Docker) or `http://localhost:8501` (local)
+2. **Add Tibber Token**: Get your token from [Tibber Developer Settings](https://developer.tibber.com/settings/accesstoken)
+3. **Configure Appliances**: Add and configure your appliances in the Settings page
 
+### Appliance Configuration
 
-You can also set the power draw for each appliance and its priority in the settings page.  If your home is equipped with Tibber Pulse or Watty, the app can check if the total power exceeds the set limit and turn off appliances starting with lowest priority to get the total power draw below the limit which comes handy with the new pricing model for the grid use in Norway.
+Each appliance can be configured with:
+- **Name**: Descriptive name for the appliance
+- **Power Draw**: Power consumption in kW
+- **Priority**: Priority level (1 = highest, used for power limiting)
+- **Setpoint**: Price threshold for switching (0.0 - 1.0, representing 0-24 hours)
 
-Set power limit in settings to 0 to disable this feature.
+### Grid Rent Settings
 
-The on/off state of the appliances can be accessed via a get request to the following address:
-```http://your-server-address/api/```
+Configure Norwegian grid rent rates:
+- **Include Grid Rent**: Enable/disable grid rent calculations
+- **Seasonal Rates**: Different rates for January-March vs April-December
+- **Day/Night Rates**: Different rates for day (06:00-22:00) and night/weekend periods
 
-The response will be a json object with the name of the appliance and its on/off state where 1 is on and 0 is off.
+### Power Limiting
 
+Set a maximum power limit to prevent exceeding your connection capacity:
+- **Power Limit**: Maximum total power draw in kW
+- **Automatic Control**: System automatically turns off low-priority appliances when limit is exceeded
+- **Disable**: Set limit to 0 to disable this feature
+
+## API Usage
+
+### Get Appliance States
+
+```http
+GET http://your-server-address/api/
+```
+
+**Response**:
 ```json
 {
-    "Boilers": 1,
-    "Floor": 0,
+    "Boiler 1": 1,
+    "Boiler 2": 0,
+    "Bathroom Floor": 1
 }
 ```
 
-Use this json to control your appliances via home automation software like Home Assistant, Futurehome or Homebridge.
+### Integration Examples
 
-## Known issues
+#### Homebridge with homebridge-http-switch plugin
 
-- For the time being price graphs show Øre/kWh, which might not be the case for your country.
-- Saving setpoint slider positions can sometimes not work after first press of the save button.
-- The cutoff lines on the price graph change color depending on their relative position to other lines.
-- It is not possible to change the time zone in the settings page for the time being. You can still change it in the docker-compose.yml file. ```- TZ=Europe/Oslo```
+You can set up Homebrige to show an on/off switch in HomeKit and build an automation off it (if this swithc is on, then turn the boiler on, etc). Below is the config example for setting up a switch that wold report the on/off command from this package.
 
-## To do
+Install the [homebridge-http-switch](https://github.com/homebridge-plugins/homebridge-http-switch) plugin:
 
-- [ ] Add currency selection to settings page.
-- [ ] Add timezone selection to settings page.
-- [ ] Fix cutoff line colors behaviour.
-- [x] Rework setpoints and appliances value saving.
+Configure your `config.json` to create switches for each appliance,
 
-## Future plans
+```json
+"accessories": [
+        {
+            "accessory": "HTTP-SWITCH",
+            "name": "Boiler R API State",
+            "serialNumber": "BR001",
+            "switchType": "stateful",
+            "onUrl": {
+                "url": "http://192.168.10.192/api/",
+                "method": "POST",
+                "body": {
+                    "Boiler R": 1,
+                    "Boiler L": 0,
+                    "Floor": 0
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            },
+            "offUrl": {
+                "url": "http://192.168.10.192/api/",
+                "method": "POST",
+                "body": {
+                    "Boiler R": 0,
+                    "Boiler L": 0,
+                    "Floor": 0
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            },
+            "statusUrl": {
+                "url": "http://192.168.10.192/api/",
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            },
+            "statusPattern": "\"Boiler R\":\\s*1",
+            "pullInterval": 5000
+        },
+]
+```
 
-- [x] Add support for limiting the hourly load.
-- Add support for more price providers.
+**Configuration Options:**
+- `name`: Display name in HomeKit
+- `switchType`: Use "stateful" for appliances that can be on/off
+
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Price Graphs Show Wrong Currency**: Currently displays Øre/kWh (Norwegian format)
+2. **Setpoint Slider Issues**: Try refreshing the page if sliders don't save properly
+3. **Timezone Issues**: Change timezone in docker-compose.yml file: `TZ=Europe/Oslo`
+
+### Logs
+
+Check container logs for debugging:
+```bash
+docker-compose logs -f price-driven-switch
+```
+
+## Development
+
+### Project Structure
+
+```
+price_driven_switch/
+├── backend/           # Core logic and API
+│   ├── configuration.py  # Settings management
+│   ├── grid_rent.py      # Grid rent calculations
+│   ├── switch_logic.py   # Appliance control logic
+│   └── tibber_connection.py  # Tibber API integration
+├── frontend/          # Streamlit web interface
+├── config/           # Configuration files
+└── tests/            # Test suite
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest tests/unit/
+pytest tests/integration/
+pytest tests/acceptance/
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all checks pass: `ruff check && mypy . && pytest`
+6. Submit a pull request
+
+Please not that grid rent model features were vibe-coded, so code is a bit messy in those places and containes unneeded comments.
+
+## Roadmap
+
+### Completed ✅
+- [x] Rework setpoints and appliances value saving
+- [x] Add support for limiting the hourly load
+- [x] Grid rent integration with Norwegian pricing model
+- [x] Comprehensive holiday detection (Easter, Pentecost, etc.)
+- [x] Automatic settings validation and migration
+
+### Planned 🚧
+- [ ] Add currency selection to settings page
+- [ ] Fix cutoff line colors behaviour
+- [ ] Add timezone selection to settings page
+- [ ] Support for additional price providers
+
+## License
+
+[Add your license information here]
+
+## Support
+
+For issues and questions:
+- [GitHub Issues](https://github.com/pavelapekhtin/price-driven-switch/issues)
+
+---
+
+**Note**: This application is designed for Norwegian electricity markets but can be adapted for other regions by modifying the grid rent calculations and holiday detection.
