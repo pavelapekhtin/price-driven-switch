@@ -4,6 +4,8 @@ import pytest
 
 from price_driven_switch.backend.grid_rent import (
     add_grid_rent_to_prices,
+    calculate_easter_sunday,
+    get_easter_holidays,
     get_grid_rent_rate,
     is_night_time,
     is_weekend_or_holiday,
@@ -237,3 +239,181 @@ class TestGridRent:
 
         # Hour 22: night rate
         assert result[22] == pytest.approx(1.0 + (38.21 / 100), rel=1e-6)
+
+    @pytest.mark.unit
+    def test_calculate_easter_sunday(self):
+        """Test Easter Sunday calculation for various years."""
+        # Known Easter Sunday dates
+        test_cases = [
+            (2024, datetime(2024, 3, 31)),  # Easter Sunday 2024
+            (2025, datetime(2025, 4, 20)),  # Easter Sunday 2025
+            (2026, datetime(2026, 4, 5)),  # Easter Sunday 2026
+            (2027, datetime(2027, 3, 28)),  # Easter Sunday 2027
+            (2028, datetime(2028, 4, 16)),  # Easter Sunday 2028
+        ]
+
+        for year, expected_date in test_cases:
+            result = calculate_easter_sunday(year)
+            assert (
+                result == expected_date
+            ), f"Easter Sunday {year} should be {expected_date}, got {result}"
+
+    @pytest.mark.unit
+    def test_get_easter_holidays(self):
+        """Test getting all Easter-related holidays for a year."""
+        # Test for 2024
+        easter_holidays_2024 = get_easter_holidays(2024)
+
+        # Easter Sunday 2024 was March 31
+        easter_sunday_2024 = datetime(2024, 3, 31)
+
+        expected_holidays = [
+            datetime(2024, 3, 28),  # Maundy Thursday
+            datetime(2024, 3, 29),  # Good Friday
+            datetime(2024, 3, 31),  # Easter Sunday
+            datetime(2024, 4, 1),  # Easter Monday
+            datetime(2024, 5, 9),  # Ascension Day
+            datetime(2024, 5, 19),  # Pentecost Sunday
+            datetime(2024, 5, 20),  # Pentecost Monday
+        ]
+
+        assert len(easter_holidays_2024) == len(expected_holidays)
+        for expected, actual in zip(expected_holidays, easter_holidays_2024):
+            assert actual == expected
+
+    @pytest.mark.unit
+    def test_is_weekend_or_holiday_easter_2024(self):
+        """Test Easter holiday detection for 2024."""
+        # Easter 2024 dates
+        easter_dates_2024 = [
+            datetime(2024, 3, 28),  # Maundy Thursday
+            datetime(2024, 3, 29),  # Good Friday
+            datetime(2024, 3, 31),  # Easter Sunday
+            datetime(2024, 4, 1),  # Easter Monday
+            datetime(2024, 5, 9),  # Ascension Day
+            datetime(2024, 5, 19),  # Pentecost Sunday
+            datetime(2024, 5, 20),  # Pentecost Monday
+        ]
+
+        for date in easter_dates_2024:
+            assert is_weekend_or_holiday(date) is True, f"{date} should be a holiday"
+
+    @pytest.mark.unit
+    def test_is_weekend_or_holiday_easter_2025(self):
+        """Test Easter holiday detection for 2025."""
+        # Easter 2025 dates
+        easter_dates_2025 = [
+            datetime(2025, 4, 17),  # Maundy Thursday
+            datetime(2025, 4, 18),  # Good Friday
+            datetime(2025, 4, 20),  # Easter Sunday
+            datetime(2025, 4, 21),  # Easter Monday
+            datetime(2025, 5, 29),  # Ascension Day
+            datetime(2025, 6, 8),  # Pentecost Sunday
+            datetime(2025, 6, 9),  # Pentecost Monday
+        ]
+
+        for date in easter_dates_2025:
+            assert is_weekend_or_holiday(date) is True, f"{date} should be a holiday"
+
+    @pytest.mark.unit
+    def test_is_weekend_or_holiday_non_holiday_dates(self):
+        """Test that regular weekdays are not marked as holidays."""
+        # Regular weekdays in 2024
+        regular_dates = [
+            datetime(2024, 1, 2),  # Tuesday after New Year
+            datetime(2024, 1, 3),  # Wednesday
+            datetime(2024, 1, 4),  # Thursday
+            datetime(2024, 1, 5),  # Friday
+            datetime(2024, 3, 27),  # Wednesday before Easter
+            datetime(2024, 3, 30),  # Saturday (weekend, should be True)
+            datetime(2024, 4, 2),  # Tuesday after Easter Monday
+            datetime(2024, 5, 8),  # Wednesday before Ascension
+            datetime(2024, 5, 10),  # Friday after Ascension
+            datetime(2024, 5, 18),  # Saturday before Pentecost
+            datetime(2024, 5, 21),  # Tuesday after Pentecost Monday
+        ]
+
+        for date in regular_dates:
+            if date.weekday() >= 5:  # Weekend
+                assert (
+                    is_weekend_or_holiday(date) is True
+                ), f"{date} should be a weekend"
+            else:
+                assert (
+                    is_weekend_or_holiday(date) is False
+                ), f"{date} should not be a holiday"
+
+    @pytest.mark.unit
+    def test_is_weekend_or_holiday_enhanced(self):
+        """Test enhanced weekend and holiday detection with Easter holidays."""
+        # Weekends
+        saturday = datetime(2024, 1, 6)  # Saturday
+        sunday = datetime(2024, 1, 7)  # Sunday
+        assert is_weekend_or_holiday(saturday) is True
+        assert is_weekend_or_holiday(sunday) is True
+
+        # Weekdays
+        monday = datetime(2024, 1, 8)  # Monday
+        friday = datetime(2024, 1, 12)  # Friday
+        assert is_weekend_or_holiday(monday) is False
+        assert is_weekend_or_holiday(friday) is False
+
+        # Norwegian fixed holidays
+        new_year = datetime(2024, 1, 1)  # New Year's Day
+        labor_day = datetime(2024, 5, 1)  # Labor Day
+        constitution_day = datetime(2024, 5, 17)  # Constitution Day
+        christmas = datetime(2024, 12, 25)  # Christmas Day
+        boxing_day = datetime(2024, 12, 26)  # Boxing Day
+
+        assert is_weekend_or_holiday(new_year) is True
+        assert is_weekend_or_holiday(labor_day) is True
+        assert is_weekend_or_holiday(constitution_day) is True
+        assert is_weekend_or_holiday(christmas) is True
+        assert is_weekend_or_holiday(boxing_day) is True
+
+        # Easter holidays 2024
+        maundy_thursday = datetime(2024, 3, 28)
+        good_friday = datetime(2024, 3, 29)
+        easter_sunday = datetime(2024, 3, 31)
+        easter_monday = datetime(2024, 4, 1)
+        ascension_day = datetime(2024, 5, 9)
+        pentecost_sunday = datetime(2024, 5, 19)
+        pentecost_monday = datetime(2024, 5, 20)
+
+        assert is_weekend_or_holiday(maundy_thursday) is True
+        assert is_weekend_or_holiday(good_friday) is True
+        assert is_weekend_or_holiday(easter_sunday) is True
+        assert is_weekend_or_holiday(easter_monday) is True
+        assert is_weekend_or_holiday(ascension_day) is True
+        assert is_weekend_or_holiday(pentecost_sunday) is True
+        assert is_weekend_or_holiday(pentecost_monday) is True
+
+    @pytest.mark.unit
+    def test_get_grid_rent_rate_easter_holidays(self):
+        """Test grid rent rates during Easter holidays (should be night rates)."""
+        grid_rent_config = {
+            "JanMar": {"Day": 50.94, "Night": 38.21},
+            "AprDec": {"Day": 59.86, "Night": 47.13},
+        }
+
+        # Easter 2024 dates - all should get night rates
+        easter_dates_2024 = [
+            datetime(2024, 3, 28, 14, 0, 0),  # Maundy Thursday 14:00
+            datetime(2024, 3, 29, 14, 0, 0),  # Good Friday 14:00
+            datetime(2024, 3, 31, 14, 0, 0),  # Easter Sunday 14:00
+            datetime(2024, 4, 1, 14, 0, 0),  # Easter Monday 14:00
+            datetime(2024, 5, 9, 14, 0, 0),  # Ascension Day 14:00
+            datetime(2024, 5, 19, 14, 0, 0),  # Pentecost Sunday 14:00
+            datetime(2024, 5, 20, 14, 0, 0),  # Pentecost Monday 14:00
+        ]
+
+        for date in easter_dates_2024:
+            if date.month in [1, 2, 3]:
+                expected_rate = 38.21  # JanMar night rate
+            else:
+                expected_rate = 47.13  # AprDec night rate
+
+            result = get_grid_rent_rate(date, grid_rent_config)
+            assert (
+                result == expected_rate
+            ), f"{date} should have night rate {expected_rate}, got {result}"
