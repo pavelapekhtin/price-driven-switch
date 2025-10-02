@@ -76,14 +76,14 @@ def price_sliders() -> None:
     save_settings(new_settings)
 
 
-def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -> None:
+def plot_prices(
+    prices_df: pd.DataFrame, setpoints: dict, prices_list: list[float], show_time: bool
+) -> None:
     if prices_df.empty:
         st.write("Tomorrow's prices become available after 13:00")
         return
 
-    sorted_offset_prices = sorted(
-        offset_prices.items(), key=lambda x: x[1], reverse=True
-    )
+    sorted_setpoints = sorted(setpoints.items(), key=lambda x: x[1], reverse=True)
 
     line_colors = [
         "#ff0000",
@@ -99,13 +99,57 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
 
     fig = go.Figure()
 
+    # Calculate hour offsets using the same logic as offset_now with interleaving
+    def _interleave_hours_chart(hours: list[int]) -> list[int]:
+        """Match the interleaving logic from Prices class."""
+        if len(hours) <= 1:
+            return hours
+
+        result = []
+        queue = [(0, len(hours) - 1)]
+
+        while queue:
+            start, end = queue.pop(0)
+            if start > end:
+                continue
+
+            mid = (start + end) // 2
+            result.append(hours[mid])
+
+            queue.append((start, mid - 1))
+            queue.append((mid + 1, end))
+
+        return result
+
+    # Group hours by price and interleave
+    from collections import defaultdict
+
+    price_groups: dict[float, list[int]] = defaultdict(list)
+    for hour, price in enumerate(prices_list):
+        price_groups[price].append(hour)
+
+    # Build sorted list with interleaved hours within each price tier
+    sorted_pairs = []
+    for price in sorted(price_groups.keys()):
+        hours = price_groups[price]
+        interleaved = _interleave_hours_chart(hours)
+        for hour in interleaved:
+            sorted_pairs.append((hour, price))
+
+    # Calculate offsets for each hour
+    hour_offsets = {}
+    for hour in range(len(prices_list)):
+        position = next(i for i, (h, _) in enumerate(sorted_pairs) if h == hour)
+        hour_offsets[hour] = position / 23
+
     # Add bars to the plot
-    for i, (key, price) in enumerate(sorted_offset_prices):
+    for i, (key, setpoint) in enumerate(sorted_setpoints):
         color = line_colors[i % len(line_colors)]  # Use modulo to avoid IndexError
 
+        # Color bar if its offset < setpoint (same logic as switch: setpoint >= offset means ON)
         bar_color = [
-            color if bar_price < price else "rgba(128, 128, 128, 0.3)"
-            for bar_price in prices_df["Prices"]
+            color if hour_offsets[hour] < setpoint else "rgba(128, 128, 128, 0.3)"
+            for hour in prices_df.index
         ]
 
         fig.add_trace(
@@ -118,7 +162,14 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
             )
         )
 
-        # Add vertical line for the offset price
+        # Calculate threshold price for the horizontal line
+        # Get the price at position corresponding to this setpoint
+        threshold_position = int(round(setpoint * 23))
+        if threshold_position >= len(sorted_pairs):
+            threshold_position = len(sorted_pairs) - 1
+        threshold_price = sorted_pairs[threshold_position][1] * 100  # Convert to øre
+
+        # Add horizontal line for the threshold price
         fig.add_shape(
             go.layout.Shape(
                 type="line",
@@ -126,8 +177,8 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
                 yref="y",
                 x0=min(prices_df.index),
                 x1=max(prices_df.index),
-                y0=price,
-                y1=price,
+                y0=threshold_price,
+                y1=threshold_price,
                 line={"color": color, "width": 2},
             )
         )

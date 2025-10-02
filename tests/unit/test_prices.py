@@ -9,10 +9,14 @@ from price_driven_switch.backend.prices import Prices
 class TestPrices:
     @pytest.mark.unit
     def test_offset_now(self, mock_instance_with_hour) -> None:
-        _, instance = mock_instance_with_hour
+        mock_hour, instance = mock_instance_with_hour
         assert isinstance(instance.offset_now, float)
-        # Since grid rent is disabled in the fixture, offset should be 0 for the lowest price
-        assert instance.offset_now == 0
+        # Hour 6 has price 0.0203, which is tied with hour 5 for lowest price
+        # With new logic, hour 5 gets position 0, hour 6 gets position 1
+        # This distributes hours evenly even when prices are the same
+        assert 0 <= instance.offset_now <= 1
+        # Hour 6 should be in the cheapest tier (offset < 0.1)
+        assert instance.offset_now < 0.1
 
     @pytest.mark.unit
     def test_price_now(

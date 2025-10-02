@@ -21,7 +21,7 @@ dependencies = [
     "types-requests<3.0.0.0,>=2.31.0.8",
     "plotly<6.0.0,>=5.14.1",
     "pandas<3.0.0,>=2.1.0",
-    "streamlit<2.0.0,>=1.22.0",
+    "streamlit>=1.22.0,<2.0.0",
     "fastapi<1.0.0,>=0.109.2",
 ]
 
