@@ -1,3 +1,9 @@
+## 4.2.0 (2025-10-02)
+
+### Feat
+
+- add Norgespris fixed-price mode with intelligent hour distribution
+
 ## 4.1.1 (2025-07-01)
 
 ### Fix
