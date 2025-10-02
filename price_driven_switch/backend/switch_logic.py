@@ -1,3 +1,4 @@
+# mypy: disable-error-code="index,operator"
 import pandas as pd
 from loguru import logger
 
@@ -19,7 +20,7 @@ def get_price_based_states(
 ) -> pd.DataFrame:
     appliance_df["on"] = appliance_df["Setpoint"] >= offset_now
 
-    logger.info(f"Price only based states: {str(appliance_df['on'].to_list())}")
+    logger.info(f"Price only based states: {appliance_df['on'].to_list()!s}")
     return appliance_df
 
 
@@ -106,7 +107,7 @@ def limit_power(
                                 f"Turning ON {index}, power {prev_row['Power']} kW"
                             )
                             logger.debug(
-                                f"Estimated total power now {total_power/ 1000} kW"
+                                f"Estimated total power now {total_power / 1000} kW"
                             )
                             logger.debug(f"Power reserve now {power_reserve / 1000} kW")
                     if switch_df.at[index, "on"] == False:  # noqa: E712
