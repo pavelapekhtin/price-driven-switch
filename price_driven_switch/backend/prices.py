@@ -51,9 +51,19 @@ class Prices:
 
     @property
     def today_prices(self) -> list[float]:
-        base_prices = self._load_prices("today")
-        if self.settings.get("Settings", {}).get("IncludeGridRent", True):
-            grid_rent_config = self.settings.get("Settings", {}).get("GridRent", {})
+        settings = self.settings.get("Settings", {})
+
+        # If Norgespris is enabled, use fixed prices
+        if settings.get("UseNorgespris", False):
+            norgespris_rate = settings.get("NorgesprisRate", 50.0)
+            # Convert from øre to NOK to match Tibber API format
+            base_prices = [norgespris_rate / 100.0] * 24
+        else:
+            base_prices = self._load_prices("today")
+
+        # Add grid rent if enabled
+        if settings.get("IncludeGridRent", True):
+            grid_rent_config = settings.get("GridRent", {})
             today_date = datetime.now().replace(
                 hour=0, minute=0, second=0, microsecond=0
             )
@@ -62,9 +72,19 @@ class Prices:
 
     @property
     def tomo_prices(self) -> list[float]:
-        base_prices = self._load_prices("tomorrow")
-        if self.settings.get("Settings", {}).get("IncludeGridRent", True):
-            grid_rent_config = self.settings.get("Settings", {}).get("GridRent", {})
+        settings = self.settings.get("Settings", {})
+
+        # If Norgespris is enabled, use fixed prices
+        if settings.get("UseNorgespris", False):
+            norgespris_rate = settings.get("NorgesprisRate", 50.0)
+            # Convert from øre to NOK to match Tibber API format
+            base_prices = [norgespris_rate / 100.0] * 24
+        else:
+            base_prices = self._load_prices("tomorrow")
+
+        # Add grid rent if enabled
+        if settings.get("IncludeGridRent", True):
+            grid_rent_config = settings.get("GridRent", {})
             tomorrow_date = datetime.now().replace(
                 hour=0, minute=0, second=0, microsecond=0
             )

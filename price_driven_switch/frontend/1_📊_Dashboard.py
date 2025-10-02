@@ -89,13 +89,21 @@ async def main():
 
     st.header("Power Prices")
 
-    # Show grid rent status
+    # Show pricing mode status
     settings = load_settings_file()
+    use_norgespris = settings.get("Settings", {}).get("UseNorgespris", False)
     include_grid_rent = settings.get("Settings", {}).get("IncludeGridRent", True)
-    if include_grid_rent:
-        st.info("🔌  Grid rent included")
+
+    if use_norgespris and include_grid_rent:
+        norgespris_rate = settings.get("Settings", {}).get("NorgesprisRate", 50.0)
+        st.info(f"📌 Norgespris ({norgespris_rate:.1f} øre/kWh) + grid rent")
+    elif use_norgespris:
+        norgespris_rate = settings.get("Settings", {}).get("NorgesprisRate", 50.0)
+        st.info(f"📌 Norgespris ({norgespris_rate:.1f} øre/kWh) only")
+    elif include_grid_rent:
+        st.info("🔌 Spot price + grid rent")
     else:
-        st.info("⚠️ Spot price only. Grid rent not included.")
+        st.info("⚠️ Spot price only")
 
     today_prices = pd.Series(prices.today_prices) * 100
     tomo_prices = pd.Series(prices.tomo_prices) * 100

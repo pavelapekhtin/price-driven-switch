@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 import plotly.graph_objects as go  # type: ignore
@@ -18,7 +18,7 @@ from price_driven_switch.backend.switch_logic import load_appliances_df
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
-def extract_setpoints(input_dict: Dict[str, Any]) -> Dict[str, float]:
+def extract_setpoints(input_dict: dict[str, Any]) -> dict[str, float]:
     appliances = input_dict.get("Appliances", {})
     setpoint_dict = {
         name: appliance.get("Setpoint", 0.0) for name, appliance in appliances.items()
@@ -26,16 +26,16 @@ def extract_setpoints(input_dict: Dict[str, Any]) -> Dict[str, float]:
     return setpoint_dict
 
 
-def load_setpoints() -> Dict[str, float]:
+def load_setpoints() -> dict[str, float]:
     return extract_setpoints(load_settings_file())
 
 
-def change_slider_state(values: Dict[str, float]) -> None:
+def change_slider_state(values: dict[str, float]) -> None:
     st.session_state.slider_values = values
 
 
-def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
-    new_dict: Dict[str, float] = values.copy()
+def generate_sliders(values: dict[str, float]) -> dict[str, float]:
+    new_dict: dict[str, float] = values.copy()
     for key, value in new_dict.items():
         slider_value: int = int(value * 24)
         new_value: int = st.slider(
@@ -51,8 +51,8 @@ def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
 
 
 def update_setpoints(
-    original_dict: Dict[str, Any], new_setpoints: Dict[str, float]
-) -> Dict[str, Any]:
+    original_dict: dict[str, Any], new_setpoints: dict[str, float]
+) -> dict[str, Any]:
     if "Appliances" not in original_dict:
         original_dict["Appliances"] = {}
 
@@ -143,7 +143,9 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
         )
 
     # Add current time line if show_time is True
-    def shape_part(xoffset: float, y0: float, y1: float, color: str, width: int):
+    def shape_part(
+        xoffset: float, y0: float, y1: float, color: str, width: int
+    ) -> None:
         fig.add_shape(
             go.layout.Shape(
                 type="line",
@@ -329,13 +331,13 @@ def get_subscription_status() -> str:
 
 
 def update_grid_rent_settings(
-    original_dict: Dict[str, Any],
+    original_dict: dict[str, Any],
     include_grid_rent: bool,
     jan_mar_day: float,
     jan_mar_night: float,
     apr_dec_day: float,
     apr_dec_night: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Update grid rent settings in the configuration."""
     if "Settings" not in original_dict:
         original_dict["Settings"] = {}
@@ -345,6 +347,21 @@ def update_grid_rent_settings(
         "JanMar": {"Day": jan_mar_day, "Night": jan_mar_night},
         "AprDec": {"Day": apr_dec_day, "Night": apr_dec_night},
     }
+
+    return original_dict
+
+
+def update_norgespris_settings(
+    original_dict: dict[str, Any],
+    use_norgespris: bool,
+    norgespris_rate: float,
+) -> dict[str, Any]:
+    """Update Norgespris settings in the configuration."""
+    if "Settings" not in original_dict:
+        original_dict["Settings"] = {}
+
+    original_dict["Settings"]["UseNorgespris"] = use_norgespris
+    original_dict["Settings"]["NorgesprisRate"] = norgespris_rate
 
     return original_dict
 
@@ -429,3 +446,40 @@ def grid_rent_configuration() -> None:
         )
         save_settings(new_settings)
         st.success("Grid rent settings updated!")
+
+
+def norgespris_configuration() -> None:
+    """Display and handle Norgespris configuration in the settings page."""
+    settings = load_settings_file()
+    current_settings = settings.get("Settings", {})
+
+    st.subheader("Norgespris Configuration")
+
+    # Toggle for using Norgespris
+    use_norgespris = st.checkbox(
+        "Use Norgespris Fixed Price",
+        value=current_settings.get("UseNorgespris", False),
+        help="When enabled, use fixed Norgespris rate instead of spot prices",
+    )
+
+    # Norgespris rate configuration
+    norgespris_rate = st.number_input(
+        "Norgespris Rate (øre/kWh)",
+        value=float(current_settings.get("NorgesprisRate", 50.0)),
+        min_value=0.0,
+        step=0.1,
+        format="%.1f",
+        help="Fixed rate for Norgespris (default: 50 øre/kWh with VAT, 40 øre/kWh without VAT)",
+    )
+
+    # Save settings if any values changed
+    if use_norgespris != current_settings.get(
+        "UseNorgespris", False
+    ) or norgespris_rate != current_settings.get("NorgesprisRate", 50.0):
+        new_settings = update_norgespris_settings(
+            settings.copy(),
+            use_norgespris,
+            norgespris_rate,
+        )
+        save_settings(new_settings)
+        st.success("Norgespris settings updated!")

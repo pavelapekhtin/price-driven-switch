@@ -49,6 +49,13 @@ default-groups = ["prod", "dev"]
 [tool.mypy]
 exclude = "^tests/.*"
 
+[tool.pyright]
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "$version"
@@ -60,7 +67,7 @@ major_version_zero = false
 
 [tool.ruff]
 lint.extend-select = ["B", "Q", "C4", "SIM"]
-lint.ignore = []
+lint.ignore = ["RUF046", "ANN201", "ANN202"]
 lint.fixable = ["ALL"]
 lint.unfixable = []
 target-version = "py311"
