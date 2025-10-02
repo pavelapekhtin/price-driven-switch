@@ -21,7 +21,7 @@ dependencies = [
     "types-requests<3.0.0.0,>=2.31.0.8",
     "plotly<6.0.0,>=5.14.1",
     "pandas<3.0.0,>=2.1.0",
-    "streamlit<2.0.0,>=1.22.0",
+    "streamlit>=1.22.0,<2.0.0",
     "fastapi<1.0.0,>=0.109.2",
 ]
 
@@ -49,6 +49,13 @@ default-groups = ["prod", "dev"]
 [tool.mypy]
 exclude = "^tests/.*"
 
+[tool.pyright]
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "$version"
@@ -60,7 +67,7 @@ major_version_zero = false
 
 [tool.ruff]
 lint.extend-select = ["B", "Q", "C4", "SIM"]
-lint.ignore = []
+lint.ignore = ["RUF046", "ANN201", "ANN202"]
 lint.fixable = ["ALL"]
 lint.unfixable = []
 target-version = "py311"

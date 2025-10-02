@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import pandas as pd
 import plotly.graph_objects as go  # type: ignore
@@ -18,7 +18,7 @@ from price_driven_switch.backend.switch_logic import load_appliances_df
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 
-def extract_setpoints(input_dict: Dict[str, Any]) -> Dict[str, float]:
+def extract_setpoints(input_dict: dict[str, Any]) -> dict[str, float]:
     appliances = input_dict.get("Appliances", {})
     setpoint_dict = {
         name: appliance.get("Setpoint", 0.0) for name, appliance in appliances.items()
@@ -26,16 +26,16 @@ def extract_setpoints(input_dict: Dict[str, Any]) -> Dict[str, float]:
     return setpoint_dict
 
 
-def load_setpoints() -> Dict[str, float]:
+def load_setpoints() -> dict[str, float]:
     return extract_setpoints(load_settings_file())
 
 
-def change_slider_state(values: Dict[str, float]) -> None:
+def change_slider_state(values: dict[str, float]) -> None:
     st.session_state.slider_values = values
 
 
-def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
-    new_dict: Dict[str, float] = values.copy()
+def generate_sliders(values: dict[str, float]) -> dict[str, float]:
+    new_dict: dict[str, float] = values.copy()
     for key, value in new_dict.items():
         slider_value: int = int(value * 24)
         new_value: int = st.slider(
@@ -51,8 +51,8 @@ def generate_sliders(values: Dict[str, float]) -> Dict[str, float]:
 
 
 def update_setpoints(
-    original_dict: Dict[str, Any], new_setpoints: Dict[str, float]
-) -> Dict[str, Any]:
+    original_dict: dict[str, Any], new_setpoints: dict[str, float]
+) -> dict[str, Any]:
     if "Appliances" not in original_dict:
         original_dict["Appliances"] = {}
 
@@ -76,14 +76,14 @@ def price_sliders() -> None:
     save_settings(new_settings)
 
 
-def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -> None:
+def plot_prices(
+    prices_df: pd.DataFrame, setpoints: dict, prices_list: list[float], show_time: bool
+) -> None:
     if prices_df.empty:
         st.write("Tomorrow's prices become available after 13:00")
         return
 
-    sorted_offset_prices = sorted(
-        offset_prices.items(), key=lambda x: x[1], reverse=True
-    )
+    sorted_setpoints = sorted(setpoints.items(), key=lambda x: x[1], reverse=True)
 
     line_colors = [
         "#ff0000",
@@ -99,13 +99,57 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
 
     fig = go.Figure()
 
+    # Calculate hour offsets using the same logic as offset_now with interleaving
+    def _interleave_hours_chart(hours: list[int]) -> list[int]:
+        """Match the interleaving logic from Prices class."""
+        if len(hours) <= 1:
+            return hours
+
+        result = []
+        queue = [(0, len(hours) - 1)]
+
+        while queue:
+            start, end = queue.pop(0)
+            if start > end:
+                continue
+
+            mid = (start + end) // 2
+            result.append(hours[mid])
+
+            queue.append((start, mid - 1))
+            queue.append((mid + 1, end))
+
+        return result
+
+    # Group hours by price and interleave
+    from collections import defaultdict
+
+    price_groups: dict[float, list[int]] = defaultdict(list)
+    for hour, price in enumerate(prices_list):
+        price_groups[price].append(hour)
+
+    # Build sorted list with interleaved hours within each price tier
+    sorted_pairs = []
+    for price in sorted(price_groups.keys()):
+        hours = price_groups[price]
+        interleaved = _interleave_hours_chart(hours)
+        for hour in interleaved:
+            sorted_pairs.append((hour, price))
+
+    # Calculate offsets for each hour
+    hour_offsets = {}
+    for hour in range(len(prices_list)):
+        position = next(i for i, (h, _) in enumerate(sorted_pairs) if h == hour)
+        hour_offsets[hour] = position / 23
+
     # Add bars to the plot
-    for i, (key, price) in enumerate(sorted_offset_prices):
+    for i, (key, setpoint) in enumerate(sorted_setpoints):
         color = line_colors[i % len(line_colors)]  # Use modulo to avoid IndexError
 
+        # Color bar if its offset < setpoint (same logic as switch: setpoint >= offset means ON)
         bar_color = [
-            color if bar_price < price else "rgba(128, 128, 128, 0.3)"
-            for bar_price in prices_df["Prices"]
+            color if hour_offsets[hour] < setpoint else "rgba(128, 128, 128, 0.3)"
+            for hour in prices_df.index
         ]
 
         fig.add_trace(
@@ -118,7 +162,14 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
             )
         )
 
-        # Add vertical line for the offset price
+        # Calculate threshold price for the horizontal line
+        # Get the price at position corresponding to this setpoint
+        threshold_position = int(round(setpoint * 23))
+        if threshold_position >= len(sorted_pairs):
+            threshold_position = len(sorted_pairs) - 1
+        threshold_price = sorted_pairs[threshold_position][1] * 100  # Convert to øre
+
+        # Add horizontal line for the threshold price
         fig.add_shape(
             go.layout.Shape(
                 type="line",
@@ -126,8 +177,8 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
                 yref="y",
                 x0=min(prices_df.index),
                 x1=max(prices_df.index),
-                y0=price,
-                y1=price,
+                y0=threshold_price,
+                y1=threshold_price,
                 line={"color": color, "width": 2},
             )
         )
@@ -143,7 +194,9 @@ def plot_prices(prices_df: pd.DataFrame, offset_prices: dict, show_time: bool) -
         )
 
     # Add current time line if show_time is True
-    def shape_part(xoffset: float, y0: float, y1: float, color: str, width: int):
+    def shape_part(
+        xoffset: float, y0: float, y1: float, color: str, width: int
+    ) -> None:
         fig.add_shape(
             go.layout.Shape(
                 type="line",
@@ -329,13 +382,13 @@ def get_subscription_status() -> str:
 
 
 def update_grid_rent_settings(
-    original_dict: Dict[str, Any],
+    original_dict: dict[str, Any],
     include_grid_rent: bool,
     jan_mar_day: float,
     jan_mar_night: float,
     apr_dec_day: float,
     apr_dec_night: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Update grid rent settings in the configuration."""
     if "Settings" not in original_dict:
         original_dict["Settings"] = {}
@@ -345,6 +398,21 @@ def update_grid_rent_settings(
         "JanMar": {"Day": jan_mar_day, "Night": jan_mar_night},
         "AprDec": {"Day": apr_dec_day, "Night": apr_dec_night},
     }
+
+    return original_dict
+
+
+def update_norgespris_settings(
+    original_dict: dict[str, Any],
+    use_norgespris: bool,
+    norgespris_rate: float,
+) -> dict[str, Any]:
+    """Update Norgespris settings in the configuration."""
+    if "Settings" not in original_dict:
+        original_dict["Settings"] = {}
+
+    original_dict["Settings"]["UseNorgespris"] = use_norgespris
+    original_dict["Settings"]["NorgesprisRate"] = norgespris_rate
 
     return original_dict
 
@@ -429,3 +497,40 @@ def grid_rent_configuration() -> None:
         )
         save_settings(new_settings)
         st.success("Grid rent settings updated!")
+
+
+def norgespris_configuration() -> None:
+    """Display and handle Norgespris configuration in the settings page."""
+    settings = load_settings_file()
+    current_settings = settings.get("Settings", {})
+
+    st.subheader("Norgespris Configuration")
+
+    # Toggle for using Norgespris
+    use_norgespris = st.checkbox(
+        "Use Norgespris Fixed Price",
+        value=current_settings.get("UseNorgespris", False),
+        help="When enabled, use fixed Norgespris rate instead of spot prices",
+    )
+
+    # Norgespris rate configuration
+    norgespris_rate = st.number_input(
+        "Norgespris Rate (øre/kWh)",
+        value=float(current_settings.get("NorgesprisRate", 50.0)),
+        min_value=0.0,
+        step=0.1,
+        format="%.1f",
+        help="Fixed rate for Norgespris (default: 50 øre/kWh with VAT, 40 øre/kWh without VAT)",
+    )
+
+    # Save settings if any values changed
+    if use_norgespris != current_settings.get(
+        "UseNorgespris", False
+    ) or norgespris_rate != current_settings.get("NorgesprisRate", 50.0):
+        new_settings = update_norgespris_settings(
+            settings.copy(),
+            use_norgespris,
+            norgespris_rate,
+        )
+        save_settings(new_settings)
+        st.success("Norgespris settings updated!")

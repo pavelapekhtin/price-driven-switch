@@ -70,45 +70,37 @@ async def main():
 
     st.session_state.slider_values = slider_values
 
-    # PRICE OFFSETS ===================
-
-    offset_prices_today = {}
-    offset_prices_tomorrow = {}
-
-    # Use the keys and values (offsets) in loaded_dict to populate offset_prices_today and offset_prices_tomorrow
-    for key, offset in slider_values.items():
-        # Get the price at this offset for today and tomorrow
-        price_today = prices.get_price_at_offset_today(offset) * 100
-        price_tomorrow = prices.get_price_at_offset_tomorrow(offset) * 100
-
-        # Add these prices to the respective dictionaries
-        offset_prices_today[key] = price_today
-        offset_prices_tomorrow[key] = price_tomorrow
-
     # PRICE PLOTS =====================
 
     st.header("Power Prices")
 
-    # Show grid rent status
+    # Show pricing mode status
     settings = load_settings_file()
+    use_norgespris = settings.get("Settings", {}).get("UseNorgespris", False)
     include_grid_rent = settings.get("Settings", {}).get("IncludeGridRent", True)
-    if include_grid_rent:
-        st.info("🔌  Grid rent included")
+
+    if use_norgespris and include_grid_rent:
+        norgespris_rate = settings.get("Settings", {}).get("NorgesprisRate", 50.0)
+        st.info(f"📌 Norgespris ({norgespris_rate:.1f} øre/kWh) + grid rent")
+    elif use_norgespris:
+        norgespris_rate = settings.get("Settings", {}).get("NorgesprisRate", 50.0)
+        st.info(f"📌 Norgespris ({norgespris_rate:.1f} øre/kWh) only")
+    elif include_grid_rent:
+        st.info("🔌 Spot price + grid rent")
     else:
-        st.info("⚠️ Spot price only. Grid rent not included.")
+        st.info("⚠️ Spot price only")
 
-    today_prices = pd.Series(prices.today_prices) * 100
-    tomo_prices = pd.Series(prices.tomo_prices) * 100
+    today_prices_list = prices.today_prices
+    tomo_prices_list = prices.tomo_prices
 
-    # Convert the Series into a DataFrame for compatibility with Plotly
-    today_df = pd.DataFrame({"Prices": today_prices})
-    tomo_df = pd.DataFrame({"Prices": tomo_prices})
+    today_prices_df = pd.DataFrame({"Prices": pd.Series(today_prices_list) * 100})
+    tomo_prices_df = pd.DataFrame({"Prices": pd.Series(tomo_prices_list) * 100})
 
     st.subheader("Today")
-    plot_prices(today_df, offset_prices_today, show_time=True)
+    plot_prices(today_prices_df, slider_values, today_prices_list, show_time=True)
 
     st.subheader("Tomorrow")
-    plot_prices(tomo_df, offset_prices_tomorrow, show_time=False)
+    plot_prices(tomo_prices_df, slider_values, tomo_prices_list, show_time=False)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ import threading
 from copy import deepcopy
 from shutil import move
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict
+from typing import Any
 
 import toml
 from dotenv import load_dotenv, set_key
@@ -44,7 +44,7 @@ default_grid_rent_settings = {
 
 
 class PropagateHandler(logging.Handler):
-    def emit(self, record):
+    def emit(self, record) -> None:  # noqa: ANN001
         logging.getLogger(record.name).handle(record)
 
 
@@ -138,7 +138,7 @@ def create_default_settings_if_none(
         logger.debug(f"Settings file found at {path}")
         # Check and update existing file for missing grid rent settings
         try:
-            with open(path, "r", encoding="utf-8") as file:
+            with open(path, encoding="utf-8") as file:
                 data = toml.load(file)
 
             # Ensure grid rent settings are present
@@ -165,22 +165,24 @@ class Settings(BaseModel):
     MaxPower: float = Field(..., ge=0)
     Timezone: str
     IncludeGridRent: bool = True
-    GridRent: Dict[str, Dict[str, float]] = Field(
+    GridRent: dict[str, dict[str, float]] = Field(
         default={
             "JanMar": {"Day": 50.94, "Night": 38.21},
             "AprDec": {"Day": 59.86, "Night": 47.13},
         }
     )
+    UseNorgespris: bool = False
+    NorgesprisRate: float = Field(default=50.0, ge=0)
 
 
 class TomlStructure(BaseModel):
-    Appliances: Dict[str, Appliance]
+    Appliances: dict[str, Appliance]
     Settings: Settings
 
     @model_validator(mode="before")
     @classmethod
-    def check_timezone_key_exists(cls, values):
-        settings = values.get("Settings")
+    def check_timezone_key_exists(cls, values: str):
+        settings = values.get("Settings")  # type: ignore
         if settings is None:
             raise ValueError("Missing 'Settings' section in TOML file")
 
@@ -205,7 +207,7 @@ file_lock = threading.Lock()
 
 
 def load_settings_file(path: str = PATH_SETTINGS) -> dict:
-    with file_lock, open(path, mode="r", encoding="utf-8") as toml_file:
+    with file_lock, open(path, encoding="utf-8") as toml_file:
         settings = toml.load(toml_file)
         # Ensure grid rent settings are present
         settings = ensure_grid_rent_settings(settings)
@@ -217,7 +219,7 @@ def load_global_settings() -> dict:
     return load_settings_file().get("Settings", {})
 
 
-def update_max_power(data_dict: Dict[str, Any], new_max_power: float) -> Dict[str, Any]:
+def update_max_power(data_dict: dict[str, Any], new_max_power: float) -> dict[str, Any]:
     if "Settings" in data_dict:
         data_dict["Settings"]["MaxPower"] = new_max_power
     return data_dict
@@ -229,7 +231,7 @@ def save_settings(new_settings: dict, path: str = PATH_SETTINGS) -> None:
     validate_settings(new_settings)
     logger.debug(f"Got settings dict: \n {new_settings}")
 
-    def write():
+    def write() -> None:
         logger.debug(f"Saving settings to {path}")
         with file_lock:
             with NamedTemporaryFile("w", delete=False) as tmp:
@@ -250,7 +252,7 @@ def save_api_key(api_key: str) -> None:
 
 
 def get_package_version_from_toml() -> str:
-    with open("pyproject.toml", "r", encoding="utf-8") as file:
+    with open("pyproject.toml", encoding="utf-8") as file:
         data = toml.load(file)
         return data["project"]["version"]
 

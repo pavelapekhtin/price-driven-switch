@@ -9,6 +9,7 @@ from price_driven_switch.frontend.st_functions import (
     appliances_editor,
     check_token,
     grid_rent_configuration,
+    norgespris_configuration,
     power_limit_input,
 )
 
@@ -30,7 +31,7 @@ if "max_power_input" not in st.session_state:
 #     ).copy()[["Setpoint", "Power", "Priority"]]
 
 
-def main():
+def main() -> None:
     with st.container():
         # Show API Token text input and link it to session_state.api_token
         st.session_state.api_token = st.text_input(
@@ -56,6 +57,9 @@ def main():
 
     st.text(" ")
     grid_rent_configuration()
+
+    st.text(" ")
+    norgespris_configuration()
 
 
 if __name__ == "__main__":

@@ -9,10 +9,14 @@ from price_driven_switch.backend.prices import Prices
 class TestPrices:
     @pytest.mark.unit
     def test_offset_now(self, mock_instance_with_hour) -> None:
-        _, instance = mock_instance_with_hour
+        mock_hour, instance = mock_instance_with_hour
         assert isinstance(instance.offset_now, float)
-        # Since grid rent is disabled in the fixture, offset should be 0 for the lowest price
-        assert instance.offset_now == 0
+        # Hour 6 has price 0.0203, which is tied with hour 5 for lowest price
+        # With new logic, hour 5 gets position 0, hour 6 gets position 1
+        # This distributes hours evenly even when prices are the same
+        assert 0 <= instance.offset_now <= 1
+        # Hour 6 should be in the cheapest tier (offset < 0.1)
+        assert instance.offset_now < 0.1
 
     @pytest.mark.unit
     def test_price_now(
@@ -172,3 +176,81 @@ class TestPrices:
 
         with pytest.raises(ValueError):
             instance.get_price_of_the_offset([1.0, 2.0, 3.0], 1.1)
+
+    @pytest.mark.unit
+    def test_today_prices_with_norgespris(self, api_response_fixture) -> None:
+        """Test that Norgespris returns fixed prices when enabled."""
+        with patch(
+            "price_driven_switch.backend.prices.load_settings_file"
+        ) as mock_load_settings:
+            mock_load_settings.return_value = {
+                "Settings": {
+                    "UseNorgespris": True,
+                    "NorgesprisRate": 50.0,
+                    "IncludeGridRent": False,
+                }
+            }
+
+            prices = Prices(api_response_fixture)
+            today_prices = prices.today_prices
+
+            # Should return 24 hours of fixed price in NOK (converted from øre)
+            assert len(today_prices) == 24
+            assert all(price == 0.50 for price in today_prices)
+
+    @pytest.mark.unit
+    def test_tomo_prices_with_norgespris(self, api_response_fixture) -> None:
+        """Test that Norgespris returns fixed prices for tomorrow when enabled."""
+        with patch(
+            "price_driven_switch.backend.prices.load_settings_file"
+        ) as mock_load_settings:
+            mock_load_settings.return_value = {
+                "Settings": {
+                    "UseNorgespris": True,
+                    "NorgesprisRate": 40.0,
+                    "IncludeGridRent": False,
+                }
+            }
+
+            prices = Prices(api_response_fixture)
+            tomo_prices = prices.tomo_prices
+
+            # Should return 24 hours of fixed price in NOK (converted from øre)
+            assert len(tomo_prices) == 24
+            assert all(price == 0.40 for price in tomo_prices)
+
+    @pytest.mark.unit
+    def test_norgespris_with_grid_rent(self, api_response_fixture) -> None:
+        """Test that grid rent is added to Norgespris when both are enabled."""
+        with (
+            patch(
+                "price_driven_switch.backend.prices.load_settings_file"
+            ) as mock_load_settings,
+            patch("price_driven_switch.backend.prices.datetime") as mock_datetime,
+        ):
+            # Mock a Wednesday in January (day rate applies)
+            mock_now = datetime(2024, 1, 3, 12, 0, 0)  # Wednesday noon
+            mock_datetime.now.return_value = mock_now
+
+            mock_load_settings.return_value = {
+                "Settings": {
+                    "UseNorgespris": True,
+                    "NorgesprisRate": 50.0,
+                    "IncludeGridRent": True,
+                    "GridRent": {
+                        "JanMar": {"Day": 50.94, "Night": 38.21},
+                        "AprDec": {"Day": 59.86, "Night": 47.13},
+                    },
+                }
+            }
+
+            prices = Prices(api_response_fixture)
+            today_prices = prices.today_prices
+
+            # Should return Norgespris (50 øre = 0.50 NOK) + grid rent
+            assert len(today_prices) == 24
+            # All prices should be greater than base norgespris due to grid rent
+            assert all(price > 0.50 for price in today_prices)
+            # Some hours should have day rate, some night rate
+            # At least one price should be different from others due to different grid rent rates
+            assert len(set(today_prices)) > 1
