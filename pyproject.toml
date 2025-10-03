@@ -1,14 +1,12 @@
 [project]
 authors = [{ name = "pavelapekhtin", email = "pavel.apekhtin@gmail.com" }]
 license = { text = "MIT" }
-requires-python = "<4.0,>=3.10"
+requires-python = "<4.0,>=3.11"
 name = "price-driven-switch"
 version = "4.2.2"
 description = "Provide on/off states via GET request based on power price from Tibber API"
 readme = "README.md"
 dependencies = [
-    "pandas>=2.2.3",
-    "uvicorn>=0.34.0",
     "asyncio<4.0.0,>=3.4.3",
     "python-graphql-client<1.0.0,>=0.4.3",
     "uvicorn<1.0.0,>=0.23.2",
