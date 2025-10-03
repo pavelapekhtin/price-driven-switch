@@ -20,7 +20,7 @@ class TestPriceFile:
         ) as mock_file:
             file_date, api_dict = price_file._load_price_file()
 
-        mock_file.assert_called_once_with(price_file.path, mode="r", encoding="utf-8")
+        mock_file.assert_called_once_with(price_file.path, encoding="utf-8")
 
         # assert file timestamp
         assert file_date == file_date_fixture

@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import Dict
 
 
 def calculate_easter_sunday(year: int) -> datetime:
@@ -100,7 +99,7 @@ def is_night_time(hour: int) -> bool:
     return hour >= 22 or hour < 6
 
 
-def get_grid_rent_rate(date: datetime, grid_rent_config: Dict) -> float:
+def get_grid_rent_rate(date: datetime, grid_rent_config: dict) -> float:
     """
     Get the grid rent rate for a specific date and time.
 
@@ -124,7 +123,7 @@ def get_grid_rent_rate(date: datetime, grid_rent_config: Dict) -> float:
 
 
 def add_grid_rent_to_prices(
-    prices: list[float], date: datetime, grid_rent_config: Dict
+    prices: list[float], date: datetime, grid_rent_config: dict
 ) -> list[float]:
     """
     Add grid rent to a list of hourly prices.
