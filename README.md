@@ -10,7 +10,8 @@ A smart home automation package that controls appliances based on real-time elec
 
 ### Key Features
 
-- **Real-time Price Control**: Provide RESTful api for controlling your devices based on electricity price using the smart home solution of your choice. 
+- **Real-time Price Control**: Provide RESTful api for controlling your devices based on electricity price using the smart home solution of your choice.
+- **Even Hour Distribution**: Spreads operating hours throughout the day instead of clustering them, preventing all appliances from running consecutively during cheapest hours
 - **Grid Rent Integration**: Supports Norwegian grid rent model with configurable rates for different seasons and time periods
 - **Power Limiting**: Monitors total power consumption and automatically turns off low-priority appliances when exceeding limits, preventing you to go into the next price bracket with the grid provider. (Requires Tibber Pulse meter for real-time power draw monitoring)
 - **Web Interface**: User-friendly Streamlit-based configuration interface
@@ -18,7 +19,8 @@ A smart home automation package that controls appliances based on real-time elec
 
 ### Supported Price Providers
 
-- **Tibber**: Real-time electricity prices from Tibber API
+- **Tibber Spot Prices**: Real-time electricity prices from Tibber API
+- **Norgespris Fixed Rate**: Norwegian fixed-price electricity model as an alternative to spot prices
 - **Grid Rent**: Norwegian grid usage price model (default rates from BKK)
 
 
@@ -32,7 +34,7 @@ A smart home automation package that controls appliances based on real-time elec
    ```bash
    # Download the docker-compose.yml file
    wget https://raw.githubusercontent.com/pavelapekhtin/price-driven-switch/main/docker-compose.yml
-   
+
    # Start the container
    docker-compose up -d
    ```
@@ -54,7 +56,7 @@ Tested to work on arm64 and amd64 architectures, if you want to run it on a diff
    ```bash
    # Web interface
    streamlit run price_driven_switch/frontend/1_📊_Dashboard.py
-   
+
    # API server
    uvicorn price_driven_switch/__main__.py:app --reload
    ```
@@ -75,12 +77,22 @@ Each appliance can be configured with:
 - **Priority**: Priority level (1 = highest, used for power limiting)
 - **Setpoint**: Price threshold for switching (0.0 - 1.0, representing 0-24 hours)
 
+**How Setpoints Work:**
+The system uses a binary tree traversal algorithm to evenly spread operating hours throughout the day. For example, if you set a setpoint of 0.5 (12 hours), instead of running during the 12 cheapest consecutive hours, the appliance will run during 12 hours that are distributed across the day. This prevents all appliances from clustering during the same cheap hours and helps balance your overall power consumption.
+
 ### Grid Rent Settings
 
 Configure Norwegian grid rent rates:
 - **Include Grid Rent**: Enable/disable grid rent calculations
 - **Seasonal Rates**: Different rates for January-March vs April-December
 - **Day/Night Rates**: Different rates for day (06:00-22:00) and night/weekend periods
+
+### Norgespris Settings
+
+Configure Norwegian fixed-price electricity:
+- **Use Norgespris**: Enable fixed-price mode instead of Tibber spot prices
+- **Fixed Rate**: Set your Norgespris rate in øre/kWh (e.g., 50.0 øre/kWh with VAT, 40.0 øre/kWh without VAT)
+- **Grid Rent Compatibility**: Works seamlessly with grid rent - fixed price + time-varying grid rent
 
 ### Power Limiting
 
@@ -227,8 +239,10 @@ Please not that grid rent model features were vibe-coded, so code is a bit messy
 - [x] Grid rent integration with Norwegian pricing model
 - [x] Comprehensive holiday detection (Easter, Pentecost, etc.)
 - [x] Automatic settings validation and migration
+- [x] Add Norgespris support
 
 ### Planned 🚧
+- [ ] Allow to switch even hour distribution on and off
 - [ ] Add currency selection to settings page
 - [ ] Fix cutoff line colors behaviour
 - [ ] Add timezone selection to settings page
