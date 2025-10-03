@@ -1,7 +1,7 @@
 import datetime
 import json
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -14,7 +14,7 @@ FIXTURE_PRICE_RATIO = 0.4
 FIXTURE_SETPOINTS = {"Boilers": 0.5, "Floor": 0.4, "Other": 0.3}
 FIXTURE_SWITCH_STATES = {"Boilers": 1, "Floor": 1, "Other": 0}
 
-TEST_TOKEN: str = str("5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE")
+TEST_TOKEN: str = "5K4MVS-OjfWhK_4yrjOlFe1F6kJXPVf7eQYggo8ebAE"
 
 PATH_TEST_PRICES = "tests/fixtures/fixture_prices_lowval.json"
 PATH_TEST_PRICES_LOW = "tests/fixtures/fixture_prices_lowval.json"
@@ -23,13 +23,13 @@ PATH_TEST_PRICES_LOW = "tests/fixtures/fixture_prices_lowval.json"
 
 
 # Helper function to load JSON data from file
-def load_json_fixture(filename: str) -> Dict[str, Any]:
-    with open(filename, "r") as f:
+def load_json_fixture(filename: str) -> dict[str, Any]:
+    with open(filename) as f:
         return json.load(f)
 
 
 # Helper function to extract specific data from loaded JSON data
-def extract_data_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
+def extract_data_from_json(json_data: dict[str, Any]) -> dict[str, Any]:
     api_response = json_data.get("api_response", {})
     today_prices = [
         x["total"]
@@ -109,21 +109,21 @@ def tibber_instance_fixture():
 
 
 @pytest.fixture
-def api_response_fixture() -> Dict[str, Any]:
+def api_response_fixture() -> dict[str, Any]:
     json_data = load_json_fixture(PATH_TEST_PRICES)
     api_response, _ = extract_data_from_json(json_data)
     return api_response  # type: ignore
 
 
 @pytest.fixture
-def today_prices_fixture() -> List[float]:
+def today_prices_fixture() -> list[float]:
     json_data = load_json_fixture(PATH_TEST_PRICES)
     _, today_prices = extract_data_from_json(json_data)
     return today_prices  # type: ignore
 
 
 @pytest.fixture
-def base_today_prices_fixture() -> List[float]:
+def base_today_prices_fixture() -> list[float]:
     """Fixture for base prices without grid rent (for backward compatibility)."""
     json_data = load_json_fixture(PATH_TEST_PRICES)
     _, today_prices = extract_data_from_json(json_data)
@@ -145,7 +145,7 @@ def file_date_fixture():
 
 
 @pytest.fixture
-def price_now_fixture() -> Union[None, float]:
+def price_now_fixture() -> None | float:
     json_data = load_json_fixture(PATH_TEST_PRICES)
     try:
         # Navigate to the list containing 'total' values for today

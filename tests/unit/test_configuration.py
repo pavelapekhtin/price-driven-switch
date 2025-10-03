@@ -28,7 +28,7 @@ def test_create_setpoints_file(tmp_path):
     assert file_path.exists()
 
     # Assert the file has the right content
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path, encoding="utf-8") as file:
         data = toml.load(file)
     assert data == default_settings_toml
 
@@ -389,7 +389,7 @@ def test_create_default_settings_if_none_updates_existing_file(tmp_path):
     create_default_settings_if_none(file_path)
 
     # Check that the file was updated
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path, encoding="utf-8") as file:
         updated_data = toml.load(file)
 
     assert "IncludeGridRent" in updated_data["Settings"]
@@ -427,7 +427,7 @@ def test_create_default_settings_if_none_preserves_existing_grid_rent(tmp_path):
     create_default_settings_if_none(file_path)
 
     # Check that the file was not changed
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path, encoding="utf-8") as file:
         updated_data = toml.load(file)
 
     assert updated_data == custom_settings

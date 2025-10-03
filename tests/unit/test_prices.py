@@ -9,7 +9,7 @@ from price_driven_switch.backend.prices import Prices
 class TestPrices:
     @pytest.mark.unit
     def test_offset_now(self, mock_instance_with_hour) -> None:
-        mock_hour, instance = mock_instance_with_hour
+        _mock_hour, instance = mock_instance_with_hour
         assert isinstance(instance.offset_now, float)
         # Hour 6 has price 0.0203, which is tied with hour 5 for lowest price
         # With new logic, hour 5 gets position 0, hour 6 gets position 1

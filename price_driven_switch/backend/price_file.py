@@ -43,7 +43,7 @@ class PriceFile:
         return bool(file_date < today_1_20_pm and time_now >= today_1_20_pm)
 
     def _load_price_file(self) -> tuple[str, dict]:
-        with open(self.path, mode="r", encoding="utf-8") as json_file:
+        with open(self.path, encoding="utf-8") as json_file:
             json_data = json.load(json_file)
             api_response = json_data.get("api_response")
             file_date = json_data.get("timestamp")

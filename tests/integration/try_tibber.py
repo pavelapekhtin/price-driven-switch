@@ -1,6 +1,5 @@
 import asyncio
 
-
 from price_driven_switch.backend.tibber_connection import TibberConnection
 
 # loop = asyncio.get_event_loop()
