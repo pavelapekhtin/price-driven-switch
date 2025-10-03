@@ -22,7 +22,9 @@ COPY README.md /app/README.md
 COPY price_driven_switch/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Install uv and project dependencies
+# Pin pytibber and gql to working versions from uv.lock
 RUN pip install --no-cache-dir uv && \
+    uv pip install --system "gql[all]==3.5.0" "pytibber==0.30.8" && \
     uv pip install --system -e .
 
 # Create a non-root user and change ownership of the working directory

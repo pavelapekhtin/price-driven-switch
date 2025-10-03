@@ -99,7 +99,7 @@ def read_filtered_logs(file_path: str, lines_count: Any, level: Any) -> str:
     min_level = level_order.index(level)
     filtered_lines = []
 
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         for line in file:
             if any(level in line for level in level_order[min_level:]):
                 filtered_lines.append(line)

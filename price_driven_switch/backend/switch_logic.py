@@ -19,7 +19,6 @@ def get_price_based_states(
     offset_now: float,
 ) -> pd.DataFrame:
     appliance_df["on"] = appliance_df["Setpoint"] >= offset_now
-
     logger.info(f"Price only based states: {appliance_df['on'].to_list()!s}")
     return appliance_df
 

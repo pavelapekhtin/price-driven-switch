@@ -1,5 +1,7 @@
 import asyncio
-from typing import Hashable
+import os
+import sys
+from collections.abc import Hashable
 
 import pandas as pd
 import uvicorn
@@ -15,6 +17,26 @@ from price_driven_switch.backend.switch_logic import (
 )
 from price_driven_switch.backend.tibber_connection import TibberRealtimeConnection
 
+# Configure logger based on environment
+logger.remove()  # Remove default handler
+if os.environ.get("RUNNING_IN_DOCKER"):
+    # In Docker, log to stdout with immediate flushing
+    logger.add(
+        sys.stdout,
+        level="INFO",
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+        enqueue=False,
+    )
+else:
+    # Outside Docker, log to file
+    logger.add(
+        "logs/fast_api.log",
+        rotation="1 week",
+        retention="7 days",
+        level="DEBUG",
+        enqueue=False,
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    )
 logger.add(
     "logs/fast_api.log",
     rotation="1 week",
@@ -63,12 +85,11 @@ def create_on_status_dict(switches_df: pd.DataFrame) -> dict[Hashable | None, in
 @app.on_event("startup")
 async def startup_event():
     global tibber_instance
-    try:
-        tibber_instance = TibberRealtimeConnection()
-        global task
-        task = asyncio.create_task(tibber_instance.subscribe_to_realtime_data())
-    except Exception as e:
-        logger.error(f"Failed to start Tibber real-time subscription: {e}")
+    logger.info("Starting Tibber realtime connection initialization...")
+    tibber_instance = TibberRealtimeConnection()
+    global task
+    task = asyncio.create_task(tibber_instance.subscribe_to_realtime_data())
+    logger.info("Tibber realtime subscription task created successfully")
 
 
 @app.on_event("shutdown")
