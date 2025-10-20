@@ -1,3 +1,9 @@
+## 4.3.1 (2025-10-20)
+
+### Fix
+
+- **tests**: fix the test that was failing in gh action
+
 ## 4.3.0 (2025-10-20)
 
 ### Feat
