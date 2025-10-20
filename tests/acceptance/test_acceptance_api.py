@@ -117,7 +117,21 @@ async def test_individual_appliance_previous_endpoint():
 @pytest.mark.asyncio
 async def test_nonexistent_appliance_error():
     """Test 404 error for non-existent appliance."""
-    with patch("price_driven_switch.__main__.get_appliance_names", return_value=["Boiler 1"]):
+    with (
+        patch("price_driven_switch.__main__.load_settings_file") as mock_settings,
+        patch("price_driven_switch.__main__.Prices"),
+        patch("price_driven_switch.__main__.offset_now", return_value=0.4),
+    ):
+        # Mock settings with only "Boiler 1"
+        mock_settings.return_value = {
+            "Appliances": {
+                "Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}
+            },
+            "Settings": {
+                "MaxPower": 5.0
+            }
+        }
+
         response = client.get("/appliance/NonExistent_Appliance")
 
     assert response.status_code == 404

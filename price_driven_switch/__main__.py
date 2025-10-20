@@ -129,7 +129,6 @@ def get_individual_appliance_state(appliance_name: str, switches_df: pd.DataFram
     return 1 if bool(row["on"]) else 0
 
 
-
 @app.get("/")
 async def root() -> dict[str, str | dict[str, str]]:
     """Root endpoint providing API information."""
@@ -213,7 +212,6 @@ async def get_appliance_previous_state(appliance_name: str = Path(..., descripti
 
     price_only_states = await price_only_switch_states()
     return get_individual_appliance_state(actual_appliance_name, price_only_states)
-
 
 
 if __name__ == "__main__":
