@@ -1,3 +1,9 @@
+## 4.3.0 (2025-10-20)
+
+### Feat
+
+- add individual appliance API endpoints with URL-safe naming
+
 ## 4.2.3 (2025-10-03)
 
 ### Fix
