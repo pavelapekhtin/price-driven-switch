@@ -122,7 +122,7 @@ GET http://your-server-address/api/
 
 #### Homebridge with homebridge-http-switch plugin
 
-You can set up Homebrige to show an on/off switch in HomeKit and build an automation off it (if this swithc is on, then turn the boiler on, etc). Below is the config example for setting up a switch that wold report the on/off command from this package.
+You can set up Homebrige to show an on/off switch in HomeKit and build an automation off it (if this switch is on, then turn the boiler on, etc). Below is the config example for setting up a switch that would report the on/off command from this package.
 
 Install the [homebridge-http-switch](https://github.com/homebridge-plugins/homebridge-http-switch) plugin:
 
