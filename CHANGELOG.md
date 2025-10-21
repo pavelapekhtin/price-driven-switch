@@ -1,3 +1,13 @@
+## 4.4.0 (2025-10-21)
+
+### Feat
+
+- **ui**: enhance log viewer with filtering, cleaning, and UI tweaks
+
+### Fix
+
+- **backend**: power limiter logic for low values fixed
+
 ## 4.3.2 (2025-10-21)
 
 ### Fix
