@@ -372,7 +372,9 @@ def format_switch_states(states_data: dict | str) -> str:
 
         formatted_lines.append(f"{status_icon} {appliance}: {status_text}")
 
-    return "\n".join(formatted_lines) if formatted_lines else "⚠️ No appliances configured"
+    return (
+        "\n".join(formatted_lines) if formatted_lines else "⚠️ No appliances configured"
+    )
 
 
 def get_power_reading() -> int | str:

@@ -1,6 +1,5 @@
 """Unit tests for st_functions module."""
 
-
 from price_driven_switch.frontend.st_functions import format_switch_states
 
 
@@ -9,11 +8,7 @@ class TestFormatSwitchStates:
 
     def test_format_switch_states_with_valid_data(self):
         """Test formatting with valid appliance states data."""
-        test_data = {
-            "Boiler 1": 1,
-            "Boiler 2": 0,
-            "Bathroom Floor": 1
-        }
+        test_data = {"Boiler 1": 1, "Boiler 2": 0, "Bathroom Floor": 1}
 
         result = format_switch_states(test_data)
 
@@ -24,10 +19,7 @@ class TestFormatSwitchStates:
 
     def test_format_switch_states_with_all_on(self):
         """Test formatting when all appliances are on."""
-        test_data = {
-            "Appliance A": 1,
-            "Appliance B": 1
-        }
+        test_data = {"Appliance A": 1, "Appliance B": 1}
 
         result = format_switch_states(test_data)
 
@@ -37,10 +29,7 @@ class TestFormatSwitchStates:
 
     def test_format_switch_states_with_all_off(self):
         """Test formatting when all appliances are off."""
-        test_data = {
-            "Appliance A": 0,
-            "Appliance B": 0
-        }
+        test_data = {"Appliance A": 0, "Appliance B": 0}
 
         result = format_switch_states(test_data)
 
@@ -80,11 +69,7 @@ class TestFormatSwitchStates:
 
     def test_format_switch_states_preserves_appliance_order(self):
         """Test that appliance order is preserved in output."""
-        test_data = {
-            "Z Appliance": 1,
-            "A Appliance": 0,
-            "M Appliance": 1
-        }
+        test_data = {"Z Appliance": 1, "A Appliance": 0, "M Appliance": 1}
 
         result = format_switch_states(test_data)
         lines = result.split("\n")
@@ -96,11 +81,7 @@ class TestFormatSwitchStates:
 
     def test_format_switch_states_with_special_characters_in_names(self):
         """Test formatting with special characters in appliance names."""
-        test_data = {
-            "Boiler #1": 1,
-            "Floor (Main)": 0,
-            "Water Heater - Garage": 1
-        }
+        test_data = {"Boiler #1": 1, "Floor (Main)": 0, "Water Heater - Garage": 1}
 
         result = format_switch_states(test_data)
 
@@ -113,7 +94,7 @@ class TestFormatSwitchStates:
         test_data = {
             "Appliance 1": 2,  # Unexpected value
             "Appliance 2": 0,
-            "Appliance 3": 1
+            "Appliance 3": 1,
         }
 
         result = format_switch_states(test_data)
