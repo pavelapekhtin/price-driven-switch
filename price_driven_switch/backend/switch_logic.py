@@ -99,7 +99,7 @@ def limit_power(
                         and (switch_df.at[index, "on"] == True)  # noqa: E712
                     ):
                         total_power = power_now + prev_row["Power"] * 1000
-                        if switch_df.at[index, "Power"] < power_reserve / 1000:
+                        if prev_row["Power"] < power_reserve / 1000:
                             prev_states_df.at[index, "on"] = True
                             power_reserve = power_reserve - prev_row["Power"] * 1000
                             logger.info(
