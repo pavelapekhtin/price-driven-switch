@@ -1,3 +1,9 @@
+## 4.3.2 (2025-10-21)
+
+### Fix
+
+- **frontend**: improve Status page appliance display
+
 ## 4.3.1 (2025-10-20)
 
 ### Fix
