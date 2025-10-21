@@ -181,7 +181,7 @@ class TomlStructure(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def check_timezone_key_exists(cls, values: str):
+    def check_timezone_key_exists(cls, values: str) -> Any:
         settings = values.get("Settings")  # type: ignore
         if settings is None:
             raise ValueError("Missing 'Settings' section in TOML file")

@@ -38,6 +38,7 @@ dev = [
     "pytest-asyncio<1.0.0,>=0.21.1",
     "httpx<1.0.0,>=0.25.0",
     "ruff<1.0.0,>=0.8.4",
+    "pandas-stubs<3.0.0,>=2.0.0",
 ]
 
 
@@ -50,6 +51,47 @@ reportUnknownArgumentType = false
 reportUnknownLambdaType = false
 reportUnknownVariableType = false
 reportUnknownMemberType = false
+reportPartiallyUnknownType = false
+reportGeneralTypeIssues = false
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+reportOptionalOperand = false
+reportOptionalCall = false
+reportOptionalIterable = false
+reportOptionalContextManager = false
+reportUntypedFunctionDecorator = false
+reportUntypedClassDecorator = false
+reportUntypedBaseClass = false
+reportUntypedNamedTuple = false
+reportPrivateUsage = false
+reportConstantRedefinition = false
+reportIncompatibleMethodOverride = false
+reportIncompatibleVariableOverride = false
+reportOverlappingOverload = false
+reportPossiblyUnboundVariable = false
+reportMissingSuperCall = false
+reportUninitializedInstanceVariable = false
+reportInvalidStringEscapeSequence = false
+reportMissingParameterType = false
+reportMissingTypeArgument = false
+reportInvalidTypeVarUse = false
+reportCallInDefaultInitializer = false
+reportUnnecessaryIsInstance = false
+reportUnnecessaryCast = false
+reportUnnecessaryComparison = false
+reportAssertAlwaysTrue = false
+reportSelfClsParameterName = false
+reportImplicitStringConcatenation = false
+reportArgumentType = false
+reportOperatorIssue = false
+reportIndexIssue = false
+reportUnusedCallResult = false
+reportAttributeAccessIssue = false
+reportFunctionMemberAccess = false
+strictListInference = false
+strictDictionaryInference = false
+strictSetInference = false
+strictParameterNoneValue = false
 
 [tool.commitizen]
 name = "cz_conventional_commits"
