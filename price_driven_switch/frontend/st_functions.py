@@ -330,7 +330,7 @@ def fast_api_address() -> str:
 
 
 def get_setpoints_json() -> dict | str:
-    url = f"http://{fast_api_address()}"
+    url = f"http://{fast_api_address()}/api/"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -351,6 +351,28 @@ def get_prev_setpoints_json() -> dict | str:
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
         return str(e)
+
+
+def format_switch_states(states_data: dict | str) -> str:
+    """Format switch states into a user-friendly display."""
+    if isinstance(states_data, str):
+        return f"❌ Error: {states_data}"
+
+    if not isinstance(states_data, dict):
+        return "❌ Error: Invalid data format"
+
+    formatted_lines = []
+    for appliance, state in states_data.items():
+        if state == 1:
+            status_icon = "🟢"
+            status_text = "ON"
+        else:
+            status_icon = "🔴"
+            status_text = "OFF"
+
+        formatted_lines.append(f"{status_icon} {appliance}: {status_text}")
+
+    return "\n".join(formatted_lines) if formatted_lines else "⚠️ No appliances configured"
 
 
 def get_power_reading() -> int | str:

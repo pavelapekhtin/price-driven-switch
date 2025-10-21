@@ -4,6 +4,7 @@ import streamlit as st
 
 from price_driven_switch.backend.configuration import load_settings_file
 from price_driven_switch.frontend.st_functions import (
+    format_switch_states,
     get_power_reading,
     get_prev_setpoints_json,
     get_setpoints_json,
@@ -61,13 +62,22 @@ else:
 st.divider()
 
 
+st.subheader("Appliance States")
+
 col1, col2 = st.columns(2)
 with col1:
-    st.write("Current Setpoints JSON:")
-    st.json(get_setpoints_json())
+    st.markdown("**🔋 Current Switch States (Power Limited)**")
+    current_states = get_setpoints_json()
+    with st.container(border=True):
+        st.text(format_switch_states(current_states))
+
 with col2:
-    st.write("Price only Setpoints JSON:")
-    st.json(get_prev_setpoints_json())
+    st.markdown("**💰 Price Only Switch States**")
+    price_only_states = get_prev_setpoints_json()
+    with st.container(border=True):
+        st.text(format_switch_states(price_only_states))
+
+st.text("")  # Add some spacing
 
 st.divider()
 
