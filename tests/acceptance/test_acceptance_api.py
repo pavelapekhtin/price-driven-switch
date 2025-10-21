@@ -57,7 +57,10 @@ async def test_switch_states(test_case, settings_dict_fixture, tibber_test_token
 @pytest.mark.asyncio
 async def test_appliance_list_endpoint():
     """Test that /appliances returns URL-safe names with underscores."""
-    with patch("price_driven_switch.__main__.get_appliance_names", return_value=["Boiler 1", "Boiler 2", "Bathroom Floor"]):
+    with patch(
+        "price_driven_switch.__main__.get_appliance_names",
+        return_value=["Boiler 1", "Boiler 2", "Bathroom Floor"],
+    ):
         response = client.get("/appliances")
 
     assert response.status_code == 200
@@ -80,9 +83,7 @@ async def test_individual_appliance_endpoint():
     ):
         # Mock settings with "Boiler 1" appliance
         mock_settings.return_value = {
-            "Appliances": {
-                "Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}
-            }
+            "Appliances": {"Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}}
         }
 
         # Test underscore format endpoint
@@ -102,9 +103,7 @@ async def test_individual_appliance_previous_endpoint():
     ):
         # Mock settings with "Boiler 1" appliance
         mock_settings.return_value = {
-            "Appliances": {
-                "Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}
-            }
+            "Appliances": {"Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}}
         }
 
         # Test underscore format endpoint for previous state
@@ -124,12 +123,8 @@ async def test_nonexistent_appliance_error():
     ):
         # Mock settings with only "Boiler 1"
         mock_settings.return_value = {
-            "Appliances": {
-                "Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}
-            },
-            "Settings": {
-                "MaxPower": 5.0
-            }
+            "Appliances": {"Boiler 1": {"Power": 1.5, "Priority": 1, "Setpoint": 0.3}},
+            "Settings": {"MaxPower": 5.0},
         }
 
         response = client.get("/appliance/NonExistent_Appliance")

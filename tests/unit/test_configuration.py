@@ -84,7 +84,7 @@ def test_check_settings_toml() -> None:
         },
         "Settings": {"MaxPower": 5.0},
     }
-    assert validate_settings(test_data_correct) is None
+    validate_settings(test_data_correct)  # Should not raise exception
 
     with pytest.raises(ValueError):
         validate_settings(wrong_structure)

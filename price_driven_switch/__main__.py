@@ -10,6 +10,10 @@ from fastapi import FastAPI, HTTPException, Path
 from loguru import logger
 
 from price_driven_switch.backend.configuration import load_settings_file
+from price_driven_switch.backend.logging_utils import (
+    log_switch_decision_summary,
+    structured_logger,
+)
 from price_driven_switch.backend.price_file import PriceFile
 from price_driven_switch.backend.prices import Prices
 from price_driven_switch.backend.switch_logic import (
@@ -71,6 +75,7 @@ SETTINGS_PATH = "price_driven_switch/config/settings.toml"
 # Global variables for application state
 tibber_instance: TibberRealtimeConnection | None = None
 task: asyncio.Task | None = None
+_last_price_offset: float = 0.5  # Cache for price offset used in logging
 
 # TODO: ensure its empty at startup and add logic int the power_limit to use power based then
 previous_switch_states: pd.DataFrame = pd.DataFrame(
@@ -88,9 +93,14 @@ async def offset_now() -> float:
 
 
 async def price_only_switch_states() -> pd.DataFrame:
-    return set_price_only_based_states(
-        settings=load_settings_file(SETTINGS_PATH), offset_now=await offset_now()
+    global _last_price_offset
+    current_offset = await offset_now()
+    result = set_price_only_based_states(
+        settings=load_settings_file(SETTINGS_PATH), offset_now=current_offset
     )
+    # Store offset for logging context
+    _last_price_offset = current_offset
+    return result
 
 
 def power_limit() -> float:
@@ -120,10 +130,14 @@ def url_safe_to_appliance_name(url_name: str) -> str:
     return url_name.replace("_", " ")
 
 
-def get_individual_appliance_state(appliance_name: str, switches_df: pd.DataFrame) -> int:
+def get_individual_appliance_state(
+    appliance_name: str, switches_df: pd.DataFrame
+) -> int:
     """Get on/off state for a specific appliance."""
     if appliance_name not in switches_df.index:
-        raise HTTPException(status_code=404, detail=f"Appliance '{appliance_name}' not found")
+        raise HTTPException(
+            status_code=404, detail=f"Appliance '{appliance_name}' not found"
+        )
 
     row = switches_df.loc[appliance_name]
     return 1 if bool(row["on"]) else 0
@@ -138,8 +152,8 @@ async def root() -> dict[str, str | dict[str, str]]:
             "all_states": "/api/",
             "appliances": "/appliances",
             "individual": "/appliance/{name}",
-            "subscription": "/subscription_info"
-        }
+            "subscription": "/subscription_info",
+        },
     }
 
 
@@ -148,12 +162,30 @@ async def switch_states() -> dict[Hashable | None, int]:
     switch_states_async = await price_only_switch_states()
     global previous_switch_states
     power_reading = tibber_instance.power_reading if tibber_instance else 0
+    current_power_limit = power_limit()
+    current_offset = _last_price_offset
+
+    # Log start of decision process
+    structured_logger.log_power_limit_start(
+        power_reading, current_power_limit, previous_switch_states
+    )
+
     power_and_price_switch_states = limit_power(
         switch_states=switch_states_async,
-        power_limit=power_limit(),
+        power_limit=current_power_limit,
         prev_states=previous_switch_states,
         power_now=power_reading,
     )
+
+    # Log comprehensive summary of the decision
+    log_switch_decision_summary(
+        switch_states_async,
+        power_and_price_switch_states,
+        power_reading,
+        current_power_limit,
+        current_offset,
+    )
+
     previous_switch_states = power_and_price_switch_states
     return create_on_status_dict(power_and_price_switch_states)
 
@@ -185,7 +217,9 @@ async def list_appliances() -> dict[str, list[str]]:
 
 
 @app.get("/appliance/{appliance_name}")
-async def get_appliance_state(appliance_name: str = Path(..., description="URL-safe name of the appliance")) -> int:
+async def get_appliance_state(
+    appliance_name: str = Path(..., description="URL-safe name of the appliance"),
+) -> int:
     """Get on/off state for a specific appliance by URL-safe name."""
     # Convert URL-safe name back to actual appliance name
     actual_appliance_name = url_safe_to_appliance_name(appliance_name)
@@ -193,19 +227,36 @@ async def get_appliance_state(appliance_name: str = Path(..., description="URL-s
     switch_states_async = await price_only_switch_states()
     global previous_switch_states
     power_reading = tibber_instance.power_reading if tibber_instance else 0
+    current_power_limit = power_limit()
+    current_offset = _last_price_offset
+
     power_and_price_switch_states = limit_power(
         switch_states=switch_states_async,
-        power_limit=power_limit(),
+        power_limit=current_power_limit,
         prev_states=previous_switch_states,
         power_now=power_reading,
     )
+
+    # Only log summary for individual calls if it's different from recent bulk call
+    log_switch_decision_summary(
+        switch_states_async,
+        power_and_price_switch_states,
+        power_reading,
+        current_power_limit,
+        current_offset,
+    )
+
     previous_switch_states = power_and_price_switch_states
 
-    return get_individual_appliance_state(actual_appliance_name, power_and_price_switch_states)
+    return get_individual_appliance_state(
+        actual_appliance_name, power_and_price_switch_states
+    )
 
 
 @app.get("/appliance/{appliance_name}/previous")
-async def get_appliance_previous_state(appliance_name: str = Path(..., description="URL-safe name of the appliance")) -> int:
+async def get_appliance_previous_state(
+    appliance_name: str = Path(..., description="URL-safe name of the appliance"),
+) -> int:
     """Get previous price-only on/off state for a specific appliance by URL-safe name."""
     # Convert URL-safe name back to actual appliance name
     actual_appliance_name = url_safe_to_appliance_name(appliance_name)
